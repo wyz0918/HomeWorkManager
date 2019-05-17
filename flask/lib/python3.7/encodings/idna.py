@@ -10,7 +10,6 @@ dots = re.compile("[\u002E\u3002\uFF0E\uFF61]")
 ace_prefix = b"xn--"
 sace_prefix = "xn--"
 
-
 # This assumes query strings, so AllowUnassigned is true
 def nameprep(label):
     # Map
@@ -28,14 +27,14 @@ def nameprep(label):
     # Prohibit
     for c in label:
         if stringprep.in_table_c12(c) or \
-                stringprep.in_table_c22(c) or \
-                stringprep.in_table_c3(c) or \
-                stringprep.in_table_c4(c) or \
-                stringprep.in_table_c5(c) or \
-                stringprep.in_table_c6(c) or \
-                stringprep.in_table_c7(c) or \
-                stringprep.in_table_c8(c) or \
-                stringprep.in_table_c9(c):
+           stringprep.in_table_c22(c) or \
+           stringprep.in_table_c3(c) or \
+           stringprep.in_table_c4(c) or \
+           stringprep.in_table_c5(c) or \
+           stringprep.in_table_c6(c) or \
+           stringprep.in_table_c7(c) or \
+           stringprep.in_table_c8(c) or \
+           stringprep.in_table_c9(c):
             raise UnicodeError("Invalid character %r" % c)
 
     # Check bidi
@@ -59,7 +58,6 @@ def nameprep(label):
                 raise UnicodeError("Violation of BIDI requirement 3")
 
     return label
-
 
 def ToASCII(label):
     try:
@@ -104,7 +102,6 @@ def ToASCII(label):
         return label
     raise UnicodeError("label empty or too long")
 
-
 def ToUnicode(label):
     # Step 1: Check for ASCII
     if isinstance(label, bytes):
@@ -144,7 +141,6 @@ def ToUnicode(label):
     # Step 8: return the result of step 5
     return result
 
-
 ### Codec APIs
 
 class Codec(codecs.Codec):
@@ -152,7 +148,7 @@ class Codec(codecs.Codec):
 
         if errors != 'strict':
             # IDNA is quite clear that implementations must be strict
-            raise UnicodeError("unsupported error handling " + errors)
+            raise UnicodeError("unsupported error handling "+errors)
 
         if not input:
             return b'', 0
@@ -183,12 +179,12 @@ class Codec(codecs.Codec):
                 # Join with U+002E
                 result.extend(b'.')
             result.extend(ToASCII(label))
-        return bytes(result + trailing_dot), len(input)
+        return bytes(result+trailing_dot), len(input)
 
     def decode(self, input, errors='strict'):
 
         if errors != 'strict':
-            raise UnicodeError("Unsupported error handling " + errors)
+            raise UnicodeError("Unsupported error handling "+errors)
 
         if not input:
             return "", 0
@@ -217,14 +213,13 @@ class Codec(codecs.Codec):
         for label in labels:
             result.append(ToUnicode(label))
 
-        return ".".join(result) + trailing_dot, len(input)
-
+        return ".".join(result)+trailing_dot, len(input)
 
 class IncrementalEncoder(codecs.BufferedIncrementalEncoder):
     def _buffer_encode(self, input, errors, final):
         if errors != 'strict':
             # IDNA is quite clear that implementations must be strict
-            raise UnicodeError("unsupported error handling " + errors)
+            raise UnicodeError("unsupported error handling "+errors)
 
         if not input:
             return (b'', 0)
@@ -255,11 +250,10 @@ class IncrementalEncoder(codecs.BufferedIncrementalEncoder):
         size += len(trailing_dot)
         return (bytes(result), size)
 
-
 class IncrementalDecoder(codecs.BufferedIncrementalDecoder):
     def _buffer_decode(self, input, errors, final):
         if errors != 'strict':
-            raise UnicodeError("Unsupported error handling " + errors)
+            raise UnicodeError("Unsupported error handling "+errors)
 
         if not input:
             return ("", 0)
@@ -295,14 +289,11 @@ class IncrementalDecoder(codecs.BufferedIncrementalDecoder):
         size += len(trailing_dot)
         return (result, size)
 
-
-class StreamWriter(Codec, codecs.StreamWriter):
+class StreamWriter(Codec,codecs.StreamWriter):
     pass
 
-
-class StreamReader(Codec, codecs.StreamReader):
+class StreamReader(Codec,codecs.StreamReader):
     pass
-
 
 ### encodings module API
 

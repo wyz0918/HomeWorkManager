@@ -11,7 +11,6 @@ import codecs
 import binascii
 from io import BytesIO
 
-
 ### Codec APIs
 
 def uu_encode(input, errors='strict', filename='<data>', mode=0o666):
@@ -30,7 +29,6 @@ def uu_encode(input, errors='strict', filename='<data>', mode=0o666):
     write(b' \nend\n')
 
     return (outfile.getvalue(), len(input))
-
 
 def uu_decode(input, errors='strict'):
     assert errors == 'strict'
@@ -56,15 +54,14 @@ def uu_decode(input, errors='strict'):
             data = binascii.a2b_uu(s)
         except binascii.Error as v:
             # Workaround for broken uuencoders by /Fredrik Lundh
-            nbytes = (((s[0] - 32) & 63) * 4 + 5) // 3
+            nbytes = (((s[0]-32) & 63) * 4 + 5) // 3
             data = binascii.a2b_uu(s[:nbytes])
-            # sys.stderr.write("Warning: %s\n" % str(v))
+            #sys.stderr.write("Warning: %s\n" % str(v))
         write(data)
     if not s:
         raise ValueError('Truncated input data')
 
     return (outfile.getvalue(), len(input))
-
 
 class Codec(codecs.Codec):
     def encode(self, input, errors='strict'):
@@ -73,24 +70,19 @@ class Codec(codecs.Codec):
     def decode(self, input, errors='strict'):
         return uu_decode(input, errors)
 
-
 class IncrementalEncoder(codecs.IncrementalEncoder):
     def encode(self, input, final=False):
         return uu_encode(input, self.errors)[0]
-
 
 class IncrementalDecoder(codecs.IncrementalDecoder):
     def decode(self, input, final=False):
         return uu_decode(input, self.errors)[0]
 
-
 class StreamWriter(Codec, codecs.StreamWriter):
     charbuffertype = bytes
 
-
 class StreamReader(Codec, codecs.StreamReader):
     charbuffertype = bytes
-
 
 ### encodings module API
 

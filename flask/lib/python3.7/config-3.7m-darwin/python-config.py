@@ -11,12 +11,10 @@ import sysconfig
 valid_opts = ['prefix', 'exec-prefix', 'includes', 'libs', 'cflags',
               'ldflags', 'extension-suffix', 'help', 'abiflags', 'configdir']
 
-
 def exit_with_usage(code=1):
     print("Usage: {0} [{1}]".format(
-        sys.argv[0], '|'.join('--' + opt for opt in valid_opts)), file=sys.stderr)
+        sys.argv[0], '|'.join('--'+opt for opt in valid_opts)), file=sys.stderr)
     sys.exit(code)
-
 
 try:
     opts, args = getopt.getopt(sys.argv[1:], '', valid_opts)
