@@ -5,7 +5,15 @@
     {{ form.hidden_tag() }}
     <table>
         <tr>
-            <td><b>用户名:</b></td>
+            <td><b>教工号／学号:</b></td>
+            <td>{{ form.id(size=25, class="form-control") }}</td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td>&nbsp;</td>
+        </tr>
+        <tr>
+            <td><b>真实姓名:</b></td>
             <td>{{ form.username(size=25, class="form-control") }}</td>
         </tr>
         <tr>

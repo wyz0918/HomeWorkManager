@@ -6,15 +6,15 @@ from app import db
 
 
 class SignupForm(Form):
-    username = StringField('Username', validators=[DataRequired("请输入用户名.")])
-
+    id = StringField('ID', validators=[DataRequired("请输入教工号／学号.")])
+    username = StringField('User_name', validators=[DataRequired("请输入真实姓名.")])
     password = PasswordField('Password', validators=[DataRequired("请输入密码."),
                                                      EqualTo('confirm', message="密码必须一致")])
     confirm = PasswordField('Repeat Password')
 
 
 class LoginForm(Form):
-    username = StringField('Username', validators=[DataRequired("请输入用户名.")])
+    id = StringField('ID', validators=[DataRequired("请输入教工号／学号.")])
     password = PasswordField('Password', validators=[DataRequired("请输入密码.")])
     remember_me = BooleanField('remember_me', default=False)
 

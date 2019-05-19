@@ -1,0 +1,22 @@
+.navbar-right {
+    float: right !important;
+    margin-right: 0px;
+}
+.class_section{
+
+    padding: 8px 0px 8px 0px;
+}
+p {
+    margin: 0px;
+}
+.navbar-left {
+    float: left !important;
+    margin: 10px 0px;
+}
+
+.class_section > ul > li{
+
+    padding: 0px 17px 0px 0px;
+    font-size: 16px;
+}
+

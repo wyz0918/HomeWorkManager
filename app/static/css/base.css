@@ -1,0 +1,12 @@
+.nav-sidebar > li > a {
+    padding-right: 20px;
+    padding-left: 30px;
+}
+
+.glyphicon {
+    padding-right: 7px;
+}
+
+.secondmenu{
+    padding-left:60px !important;
+}

@@ -3,9 +3,7 @@
 {% block content %}
 <!-- Main jumbotron for a primary marketing message or call to action -->
 <div class="jumbotron">
-    <h1>Hi, {{ g.user.firstname }}!</h1>
-    {% for post in posts %}
-    <div><p><b>{{ post.author.nickname }} says</b>: {{ post.body }}</p></div>
-    {% endfor %}
+    <h1>Hi, {{ g.user.username }}!</h1>
+    <div><p>请根据<b>左侧导航栏</b>中进行相关操作！</p></div>
 </div>
 {% endblock %}

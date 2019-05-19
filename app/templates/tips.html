@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% set active_page = "tips" %}
+{% block content %}
+<!-- Main jumbotron for a primary marketing message or call to action -->
+
+<div class="jumbotron">
+    <h3>若无课程，请先创建课程！</h3>
+    <div>
+        <p>
+            <button type="submit" class="btn btn-primary" name="do_action" value="run"
+                    onclick="">创建课程
+            </button>
+        </p>
+        <p>后才能进行相关操作！</p></div>
+</div>
+{% endblock %}

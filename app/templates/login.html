@@ -5,8 +5,8 @@
     {{ form.hidden_tag() }}
     <table>
         <tr>
-            <td><b>用户名:&nbsp;&nbsp;</b></td>
-            <td>{{ form.username(size=20, class="form-control") }}</td>
+            <td><b>教工号／学号:&nbsp;&nbsp;</b></td>
+            <td>{{ form.id(size=20, class="form-control") }}</td>
         </tr>
         <tr>
             <td>&nbsp;</td>
@@ -44,7 +44,7 @@
         <b>ERROR:</b> 不合法的用户名和密码. <a href="/signup">注册</a> 一个新的账号?
     </div>
     {% endif %}
-    {% for message in form.username.errors %}
+    {% for message in form.id.errors %}
     <div class="alert alert-danger" role="alert">
         <b>ERROR:</b> {{ message }}
     </div>

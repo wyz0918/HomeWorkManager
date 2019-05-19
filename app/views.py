@@ -1,12 +1,15 @@
 from flask import render_template, flash, redirect, session, url_for, request, g
 from flask_login import login_user, logout_user, current_user, login_required
 from app import app, db, lm
-from app.models import User
+from flask import make_response
+from app.models import User,HomeWork,Course
+import datetime
+import re
 
 
 @lm.user_loader
 def load_user(uid):
-    return User.query.get(int(uid))
+    return User.query.get(uid)
 
 
 @app.before_request
@@ -14,60 +17,12 @@ def before_request():
     g.user = current_user
 
 
-@app.route('/')
-@app.route('/index')
+
+
+
+@app.route('/marking', methods=['GET', 'POST'])
 @login_required
-def index():
-    posts = [{'author': {'nickname': 'Dong'},
-              'body': 'Bootstrap is beautiful, and Flask is cool!'}]
-    return render_template('index.html', posts=posts)
-
-
-@app.route('/status')
-@login_required
-def status():
-    from app.utils.operations import local
-    from decimal import Decimal
-
-    os_fqdn = local('hostname --fqdn')
-
-    os_release = local('cat /etc/*-release |head -n 1 |cut -d= -f2 |sed s/\\"//g')
-
-    mem_kb = local("""grep -w "MemTotal" /proc/meminfo |awk '{print $2}'""")
-    mem_mb = Decimal(mem_kb) / 1024
-    os_memory = round(mem_mb, 2)
-
-    cpu_type = local(
-        """grep 'model name' /proc/cpuinfo |uniq |awk -F : '{print $2}' |sed 's/^[ \t]*//g' |sed 's/ \+/ /g'""")
-    cpu_cores = local("""grep 'processor' /proc/cpuinfo |sort |uniq |wc -l""")
-
-    nics = local("""/sbin/ifconfig |grep "Link encap" |awk '{print $1}' |grep -wv 'lo' |xargs""")
-    nics_list = nics.split()
-    t_nic_info = ""
-    for i in nics_list:
-        ipaddr = local("""/sbin/ifconfig %s |grep -w "inet addr" |cut -d: -f2 | awk '{print $1}'""" % (i))
-        if ipaddr:
-            t_nic_info = t_nic_info + i + ":" + ipaddr + ", "
-
-    disk_usage = local("""df -hP |grep -Ev 'Filesystem|tmpfs' |awk '{print $3"/"$2" "$5" "$6", "}' |xargs""")
-
-    top_info = local('top -b1 -n1 |head -n 5')
-    top_info_list = top_info.split('\n')
-
-    return render_template('status.html',
-                           os_fqdn=os_fqdn,
-                           os_release=os_release,
-                           os_memory=os_memory,
-                           cpu_type=cpu_type,
-                           cpu_cores=cpu_cores,
-                           os_network=t_nic_info,
-                           disk_usage=disk_usage,
-                           top_info_list=top_info_list)
-
-
-@app.route('/operations', methods=['GET', 'POST'])
-@login_required
-def operations():
+def marking():
     import paramiko
     from app.utils.operations import remote
     from config import basedir
@@ -94,24 +49,24 @@ def operations():
         cmd = form.cmd.data
 
         if not isup(hostname):
-            return render_template('operations.html', form=form, failed_host=hostname)
+            return render_template('marking.html', form=form, failed_host=hostname)
 
         blacklist = ['reboot', 'shutdown', 'poweroff',
                      'rm', 'mv', '-delete', 'source', 'sudo',
                      '<', '<<', '>>', '>']
         for item in blacklist:
             if item in cmd.split():
-                return render_template('operations.html', form=form, blacklisted_word=item)
+                return render_template('marking.html', form=form, blacklisted_word=item)
 
         try:
             out = remote(cmd, hostname=hostname, username=username, pkey=pkey)
         except paramiko.AuthenticationException:
-            return render_template('operations.html', form=form, hostname=hostname, failed_auth=True)
+            return render_template('marking.html', form=form, hostname=hostname, failed_auth=True)
 
         failed_cmd = out.failed
         succeeded_cmd = out.succeeded
 
-        return render_template('operations.html',
+        return render_template('marking.html',
                                form=form,
                                cmd=cmd,
                                hostname=hostname,
@@ -119,12 +74,12 @@ def operations():
                                failed_cmd=failed_cmd,
                                succeeded_cmd=succeeded_cmd)
 
-    return render_template('operations.html', form=form)
+    return render_template('marking.html', form=form)
 
 
-@app.route('/racktables', methods=['GET', 'POST'])
+@app.route('/work_setting', methods=['GET', 'POST'])
 @login_required
-def racktables():
+def work_setting():
     from app.utils.operations import local
     from config import basedir
     from app.forms import RacktablesForm
@@ -188,85 +143,22 @@ def racktables():
         failed_cmd = out.failed
         succeeded_cmd = out.succeeded
 
-        return render_template('racktables.html',
+        return render_template('work_setting.html',
                                form=form,
                                cmd=cmd,
                                out=out,
                                failed_cmd=failed_cmd,
                                succeeded_cmd=succeeded_cmd)
 
-    return render_template('racktables.html', form=form)
+    return render_template('work_setting.html', form=form)
 
 
-@app.route('/hadoop', methods=['GET', 'POST'])
+
+
+
+@app.route('/about', methods=['GET', 'POST'])
 @login_required
-def hadoop():
-    import paramiko
-    from app.utils.operations import remote
-    from config import basedir
-    from app.forms import HadoopForm
-
-    def isup(hostname):
-        import socket
-
-        conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        conn.settimeout(2)
-        try:
-            conn.connect((hostname, 22))
-            conn.close()
-        except:
-            return False
-        return True
-
-    form = HadoopForm()
-    if form.validate_on_submit():
-        username = 'dong'
-        pkey = basedir + '/sshkeys/id_rsa'
-
-        param_do = form.do_action.data
-        slave_hostname = form.slave_hostname.data
-        master_hostname = form.master_hostname.data
-
-        if master_hostname == 'none':
-            return render_template('hadoop.html', form=form, none_host=True)
-
-        if master_hostname in ['idc1-hnn1', 'idc2-hnn1']:
-            script = '/root/bin/excludedn'
-
-        if master_hostname in ['idc1-hrm1', 'idc2-hrm1']:
-            script = '/root/bin/excludeyn'
-
-        if param_do == 'exclude':
-            cmd = "sudo {0} {1}".format(script, slave_hostname)
-
-        if param_do == 'recover':
-            cmd = "sudo {0} -r {1}".format(script, slave_hostname)
-
-        if not isup(master_hostname):
-            return render_template('hadoop.html', form=form, failed_host=master_hostname)
-
-        try:
-            out = remote(cmd, hostname=master_hostname, username=username, pkey=pkey)
-        except paramiko.AuthenticationException:
-            return render_template('hadoop.html', form=form, master_hostname=master_hostname, failed_auth=True)
-
-        failed_cmd = out.failed
-        succeeded_cmd = out.succeeded
-
-        return render_template('hadoop.html',
-                               form=form,
-                               cmd=cmd,
-                               master_hostname=master_hostname,
-                               out=out,
-                               failed_cmd=failed_cmd,
-                               succeeded_cmd=succeeded_cmd)
-
-    return render_template('hadoop.html', form=form)
-
-
-@app.route('/editor', methods=['GET', 'POST'])
-@login_required
-def editor():
+def about():
     import os
     import time
     from hashlib import md5
@@ -281,7 +173,7 @@ def editor():
         if param_do == 'read':
             file_access = os.access(file_path, os.W_OK)
             if not file_access:
-                return render_template('editor.html',
+                return render_template('about.html',
                                        form=form,
                                        file_path=file_path,
                                        file_access=file_access)
@@ -290,7 +182,7 @@ def editor():
                 file_data = f.read()
             f.closed
             form.file_data.data = file_data
-            return render_template('editor.html',
+            return render_template('about.html',
                                    form=form,
                                    file_path=file_path,
                                    file_access=file_access)
@@ -298,7 +190,7 @@ def editor():
         if param_do == 'save':
             file_access = os.access(file_path, os.W_OK)
             if not file_access:
-                return render_template('editor.html',
+                return render_template('about.html',
                                        form=form,
                                        file_path=file_path,
                                        file_access=file_access)
@@ -306,7 +198,7 @@ def editor():
             file_md5sum = md5(open(file_path, 'rb').read()).hexdigest()
             form_md5sum = md5(form.file_data.data.replace('\r\n', '\n')).hexdigest()
             if file_md5sum == form_md5sum:
-                return render_template('editor.html',
+                return render_template('about.html',
                                        form=form,
                                        file_path=file_path,
                                        file_access=file_access,
@@ -323,7 +215,7 @@ def editor():
             file.write(form.file_data.data.replace('\r\n', '\n'))
             file.close()
 
-        return render_template('editor.html',
+        return render_template('about.html',
                                form=form,
                                file_path=file_path,
                                file_access=file_access,
@@ -332,7 +224,37 @@ def editor():
                                failed_backup=failed_backup,
                                succeeded_backup=succeeded_backup)
 
-    return render_template('editor.html', form=form)
+    return render_template('about.html', form=form)
+
+
+@app.route('/',methods=['GET', 'POST'])
+@app.route('/index',methods=['GET', 'POST'])
+@login_required
+def index():
+    if request.method == "GET":
+        course = Course.query.filter_by(user_id=g.user.id).all()
+
+    result = []
+
+    if course:
+        for i in course:
+            result.append((url_for('t_class_section',course_name = i.course_name), i.id, i.course_name))
+
+    session['result'] = result
+
+    return render_template('index.html',result = result)
+
+
+@app.route('/t_class_section', methods=['GET', 'POST'])
+@login_required
+def t_class_section():
+    if request.method == "GET":
+        course_name = request.args.get('course_name','')
+
+    homework = HomeWork.query.filter_by(course_name=course_name).all()
+
+
+    return render_template('t_class_section.html', homework=homework)
 
 
 @app.route('/signup', methods=['GET', 'POST'])
@@ -341,16 +263,21 @@ def signup():
 
     form = SignupForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(username=form.username.data.lower()).first()
+        user = User.query.filter_by(id=form.id.data).first()
         if user is not None:
             form.username.errors.append("用户已经被注册！")
             return render_template('signup.html', form=form)
 
-        newuser = User(form.username.data, form.password.data)
+        if form.id.data.startswith("T"):
+            identity = 'T'
+        else:
+            identity = 'S'
+
+        newuser = User(form.id.data, form.username.data,form.password.data,identity)
         db.session.add(newuser)
         db.session.commit()
 
-        session['username'] = newuser.username
+        session['id'] = newuser.id
         return redirect(url_for('login'))
 
     return render_template('signup.html', form=form)
@@ -366,11 +293,12 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         session['remember_me'] = form.remember_me.data
-        user = User.query.filter_by(username=form.username.data.lower()).first()
+        user = User.query.filter_by(id=form.id.data).first()
         if user and user.check_password(form.password.data):
-            session['username'] = form.username.data
+            session['id'] = form.id.data
             login_user(user, remember=session['remember_me'])
             return redirect(url_for('index'))
+
         else:
             return render_template('login.html', form=form, failed_auth=True)
 
