@@ -65,6 +65,16 @@ class HomeWork(db.Model):
 
 class Course(db.Model):
     __tablename__ = 'course'
+    id = db.Column(db.String(54), primary_key=True)
+    course_name = db.Column(db.String(54))
+
+    def __init__(self, id,course_name):
+        self.id = id
+        self.course_name = course_name
+
+
+class ElectiveCourse(db.Model):
+    __tablename__ = 'elective_course'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.String(54))
     course_name = db.Column(db.String(54))

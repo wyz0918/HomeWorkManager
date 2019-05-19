@@ -2,7 +2,7 @@ from flask import render_template, flash, redirect, session, url_for, request, g
 from flask_login import login_user, logout_user, current_user, login_required
 from app import app, db, lm
 from flask import make_response
-from app.models import User,HomeWork,Course
+from app.models import User,HomeWork,Course,ElectiveCourse
 import datetime
 import re
 
@@ -80,80 +80,8 @@ def marking():
 @app.route('/work_setting', methods=['GET', 'POST'])
 @login_required
 def work_setting():
-    from app.utils.operations import local
-    from config import basedir
-    from app.forms import RacktablesForm
 
-    form = RacktablesForm()
-    if form.validate_on_submit():
-        param_do = form.do_action.data
-        objectname = form.objectname.data
-        objecttype = form.objecttype.data
-        param_s = form.rackspace.data
-        param_p = form.rackposition.data
-
-        script = basedir + "/scripts/racktables.py"
-
-        if param_do == 'help':
-            cmd = "{0} -h".format(script)
-
-        if param_do == 'get':
-            cmd = "{0}".format(script)
-            if objectname:
-                cmd = "{0} {1}".format(script, objectname)
-
-        if param_do == 'list':
-            cmd = "{0} {1} -l".format(script, objectname)
-
-        if param_do == 'read':
-            cmd = "{0} {1} -r".format(script, objectname)
-            if objecttype == 'offline_mode':
-                cmd = cmd + " -o"
-            if objecttype == 'patch_panel':
-                cmd = cmd + " -b"
-            if objecttype == 'network_switch':
-                cmd = cmd + " -n"
-            if objecttype == 'network_security':
-                cmd = cmd + " -f"
-            if objecttype == 'pdu':
-                cmd = cmd + " -u"
-
-        if param_do == 'write':
-            cmd = "{0} {1} -w".format(script, objectname)
-            if param_s:
-                cmd = cmd + " -s {0}".format(param_s)
-            if param_p != 'none':
-                cmd = cmd + " -p {0}".format(param_p)
-            if objecttype == 'offline_mode':
-                cmd = cmd + " -o"
-            if objecttype == 'patch_panel':
-                cmd = cmd + " -b"
-            if objecttype == 'network_switch':
-                cmd = cmd + " -n"
-            if objecttype == 'network_security':
-                cmd = cmd + " -f"
-            if objecttype == 'pdu':
-                cmd = cmd + " -u"
-
-        if param_do == 'delete':
-            cmd = "{0} {1} -d".format(script, objectname)
-
-        out = local(cmd)
-
-        failed_cmd = out.failed
-        succeeded_cmd = out.succeeded
-
-        return render_template('work_setting.html',
-                               form=form,
-                               cmd=cmd,
-                               out=out,
-                               failed_cmd=failed_cmd,
-                               succeeded_cmd=succeeded_cmd)
-
-    return render_template('work_setting.html', form=form)
-
-
-
+    return render_template('work_setting.html')
 
 
 @app.route('/about', methods=['GET', 'POST'])
@@ -232,7 +160,7 @@ def about():
 @login_required
 def index():
     if request.method == "GET":
-        course = Course.query.filter_by(user_id=g.user.id).all()
+        course = ElectiveCourse.query.filter_by(user_id=g.user.id).all()
 
     result = []
 
@@ -240,9 +168,35 @@ def index():
         for i in course:
             result.append((url_for('t_class_section',course_name = i.course_name), i.id, i.course_name))
 
+    session.pop('result',None)
     session['result'] = result
 
     return render_template('index.html',result = result)
+
+
+@app.route('/create_course', methods=['POST'])
+@login_required
+def create_course():
+    from random import choice
+    from string import ascii_uppercase as uc, digits as dg
+    from flask import jsonify
+
+    course_name = request.values['course_name']
+    part1 = ''.join(choice(uc) for j in range(3))  # 三个大写的英文
+    part2 = ''.join(choice(dg) for j in range(3))  # 三个随机数字
+    invitation_code = part1 + part2
+    search_result = Course.query.filter_by(id=invitation_code).first()
+
+    while search_result is not None:
+        part1 = ''.join(choice(uc) for j in range(3))  # 三个大写的英文
+        part2 = ''.join(choice(dg) for j in range(3))  # 三个随机数字
+        invitation_code = part1 + part2
+
+    newcourse = Course(invitation_code,course_name)
+    db.session.add(newcourse)
+    db.session.commit()
+
+    return jsonify(invitation_code)
 
 
 @app.route('/t_class_section', methods=['GET', 'POST'])
@@ -251,8 +205,7 @@ def t_class_section():
     if request.method == "GET":
         course_name = request.args.get('course_name','')
 
-    homework = HomeWork.query.filter_by(course_name=course_name).all()
-
+        homework = HomeWork.query.filter_by(course_name=course_name).all()
 
     return render_template('t_class_section.html', homework=homework)
 

@@ -19,6 +19,10 @@ class LoginForm(Form):
     remember_me = BooleanField('remember_me', default=False)
 
 
+class CreateCourseForm(Form):
+    course_name = StringField('Course_name', validators=[DataRequired("请输入课程名.")])
+
+
 class OperationsForm(Form):
     do_action = StringField('Action')
     hostname = StringField('Hostname', validators=[DataRequired()])

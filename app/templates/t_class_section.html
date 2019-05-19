@@ -1,115 +1,106 @@
 {% extends "base.html" %}
 {% set active_page = "{{t_class_section}}" %}
+
 {% block content %}
 
 
-<form>
+<div class="nav class_section">
+    <ul class="nav navbar-nav navbar-left">
+        <li>
+            <b>课程名:&nbsp;&nbsp;</b>
+            {% if homework %}
+            {{ homework[0].course_name }}
+            {% endif %}
 
-    <div class="nav class_section">
-        <ul class="nav navbar-nav navbar-left">
-            <li>
-                <b>课程名:&nbsp;&nbsp;</b>
-                {% if homework %}
-                {{ homework[0].course_name }}
-                {% endif %}
+        </li>
+        <li>
+            <b>课程ID:&nbsp;&nbsp;</b>
+            {% if homework %}
+            {{ homework[0].course_name }}
+            {% endif %}
 
-            </li>
-            <li>
-                <b>课程ID:&nbsp;&nbsp;</b>
-                {% if homework %}
-                {{ homework[0].course_name }}
-                {% endif %}
+        </li>
+    </ul>
+    <ul class="nav navbar-nav navbar-right">
+        <li>
 
-            </li>
-        </ul>
-        <ul class="nav navbar-nav navbar-right">
-            <li>
+            <button type="submit" class="btn btn-primary" name="do_action" data-toggle="modal" data-target="#myModal">
+                创建课程
+            </button>
 
-                <button type="submit" class="btn btn-primary" name="do_action" value="run"
-                        onclick="$('#loading').show();$('#hiding').hide();">创建课程
-                </button>
-                //模态框
-                <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-                     aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                                <h4 class="modal-title" id="myModalLabel">创建课程</h4>
-                            </div>
-                            <div class="modal-body">
-                                <table>
-                                    <tr>
-                                        <td><b>请输入课程名:&nbsp;&nbsp;</b></td>
-                                        <td>{{ form.course_name(size=20, class="form-control") }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>&nbsp;</td>
-                                        <td>&nbsp;</td>
-                                    </tr>
-                                    <tr>
-                                        <td><b>密码:&nbsp;&nbsp;&nbsp;&nbsp;</b></td>
-                                        <td>{{ form.password(size=20, class="form-control") }}</td>
-                                    </tr>
-                                    <tr>
-                                        <td>&nbsp;</td>
-                                        <td>&nbsp;</td>
-                                    </tr>
+        </li>
+        <li>
 
+            <button type="submit" class="btn btn-primary" name="do_action" value="run"
+                    onclick="$('#loading').show();$('#hiding').hide();">布置作业
+            </button>
+        </li>
 
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-                                <button type="button" class="btn btn-primary">提交更改</button>
-                            </div>
-                        </div><!-- /.modal-content -->
-                    </div><!-- /.modal-dialog -->
+    </ul>
+</div>
+<!--模态框-->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true" onclick="close_tips()">×</button>
+                    <h4 class="modal-title" id="myModalLabel">创建课程</h4>
                 </div>
-            </li>
-            <li>
+                <div class="modal-body">
+                    <table>
+                        <tr>
+                            <td><b>请输入课程名:&nbsp;&nbsp;</b></td>
+                            <td><input type="text" class="form-control" size="20"></td>
+                        </tr>
+                        <div class="alert alert-success reminder" role="alert" style="display: none;">
+                        </div>
 
-                <button type="submit" class="btn btn-primary" name="do_action" value="run"
-                        onclick="$('#loading').show();$('#hiding').hide();">布置作业
-                </button>
-            </li>
+                    </table>
 
-        </ul>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" onclick="close_tips()">关闭</button>
+                    <button type="submit" class="btn btn-primary summit" onclick="create_course()">确认</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
     </div>
-    <div class="panel panel-default">
-        <div class="panel-heading">
-        </div>
-        <div class="panel-body">
-            <table class="table table-hover">
-                <tr>
-                    <td><b>作业批次</b></td>
-                    <td><b>作业名</b></td>
-                    <td><b>发布时间</b></td>
-                    <td><b>截止时间</b></td>
-                    <td><b>上传情况</b></td>
-                    <td><b>状态</b></td>
-                </tr>
-
-                {% if homework %}
-                {% for i in homework %}
-                <tr>
-                    <a href="#">
-                        <td>{{ i.batch|e }}</td>
-                        <td>{{ i.homework_name|e }}</td>
-                        <td>{{ i.publish_time|e }}</td>
-                        <td>{{ i.end_time|e }}</td>
-                        <td>{{ i.upload_status|e }}</td>
-                        <td>{{ i.status|e }}</td>
-                    </a>
-                </tr>
-                {% endfor %}
-                {% endif %}
-
-
-            </table>
-
-        </div>
+<div class="panel panel-default">
+    <div class="panel-heading">
     </div>
-</form>
+    <div class="panel-body">
+        <table class="table table-hover">
+            <tr>
+                <td><b>作业批次</b></td>
+                <td><b>作业名</b></td>
+                <td><b>发布时间</b></td>
+                <td><b>截止时间</b></td>
+                <td><b>上传情况</b></td>
+                <td><b>状态</b></td>
+            </tr>
+
+            {% if homework %}
+            {% for i in homework %}
+            <tr>
+                <a href="#">
+                    <td>{{ i.batch|e }}</td>
+                    <td>{{ i.homework_name|e }}</td>
+                    <td>{{ i.publish_time|e }}</td>
+                    <td>{{ i.end_time|e }}</td>
+                    <td>{{ i.upload_status|e }}</td>
+                    <td>{{ i.status|e }}</td>
+                </a>
+            </tr>
+            {% endfor %}
+            {% endif %}
+
+
+        </table>
+
+    </div>
+</div>
+
 
 <div id="loading" style="display:none;">
     <input type="image" src="{{ url_for('static',filename='img/loading.gif') }}">
@@ -159,4 +150,10 @@
     </div>
     {% endif %}
 </div>
+
+
+
+
+
+
 {% endblock %}
