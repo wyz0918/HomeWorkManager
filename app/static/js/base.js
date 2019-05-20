@@ -23,7 +23,3 @@
 //
 //});
 
-
-    ($.glyphicon glyphicon-cog).html("asdad");
-
-request.cookies.get('course_info')

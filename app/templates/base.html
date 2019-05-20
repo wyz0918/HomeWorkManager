@@ -48,7 +48,7 @@
         </div>
         <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav navbar-right">
-                {% if g.user.is_authenticated() %}
+                {% if g.user.is_authenticated %}
                 <li><a href="{{ url_for('index') }}">Hi，{{g.user.username}}</a></li>
                 {% endif %}
                 {% set navigation_bar = [
@@ -58,7 +58,7 @@
                 {% for href, id, caption in navigation_bar %}
                 <li {% if active_page== id %} class="active" {% endif %}><a href="{{ href|e }}">{{ caption|e }}</a></li>
                 {% endfor %}
-                {% if g.user.is_authenticated() %}
+                {% if g.user.is_authenticated%}
                 <li><a href="{{ url_for('logout') }}">退出</a></li>
                 {% else %}
                 <li {% if active_page==
@@ -80,12 +80,11 @@
                     <a href="#my_course" class="nav-header collapsed" data-toggle="collapse">
                         <i class="glyphicon glyphicon-list-alt"></i>我的课程<span class="pull-right glyphicon glyphicon-chevron-down"></span>
                     </a>
-                    <ul id="my_course" class="nav nav-list collapse " style="height: 0px;">
-
+                    <ul id="my_course" class="nav nav-list collapse" style="height: 0px;">
                         {% with result = session['result'] %}
                         {% if result %}
-                        {% for href, id, caption in result %}
-                        <li {% if active_page ==  id %} class="active" {% endif %}><a href="{{ href|e }}" class="secondmenu">{{caption|e}}</a></li>
+                        {% for href, caption in result %}
+                        <li><a href="{{ href|e }}" class="secondmenu">{{caption|e}}</a></li>
                         {% endfor %}
                         {% endif %}
                         {% endwith %}
@@ -128,7 +127,7 @@
     <!-- Placed at the end of the document so the pages load faster -->
 	<script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
 	<script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
-	<script src="{{ url_for('static',filename='js/create_course.js') }}"></script>
+	<script src="{{ url_for('static',filename='js/customized_style.js') }}"></script>
 
 </body>
 </html>

@@ -18,8 +18,6 @@ def before_request():
 
 
 
-
-
 @app.route('/marking', methods=['GET', 'POST'])
 @login_required
 def marking():
@@ -155,23 +153,25 @@ def about():
     return render_template('about.html', form=form)
 
 
-@app.route('/',methods=['GET', 'POST'])
-@app.route('/index',methods=['GET', 'POST'])
+@app.route('/', methods=['GET', 'POST'])
+@app.route('/index', methods=['GET', 'POST'])
 @login_required
 def index():
     if request.method == "GET":
-        course = ElectiveCourse.query.filter_by(user_id=g.user.id).all()
+        user = User.query.filter_by(id=g.user.id).first()
 
     result = []
 
-    if course:
-        for i in course:
-            result.append((url_for('t_class_section',course_name = i.course_name), i.id, i.course_name))
+    if user:
 
-    session.pop('result',None)
+        for i in user.courses:
+
+            result.append((url_for('t_class_section', course_id=i.id), i.course_name))
+
+    session.pop('result', None)
     session['result'] = result
 
-    return render_template('index.html',result = result)
+    return render_template('index.html', result=result)
 
 
 @app.route('/create_course', methods=['POST'])
@@ -192,9 +192,18 @@ def create_course():
         part2 = ''.join(choice(dg) for j in range(3))  # 三个随机数字
         invitation_code = part1 + part2
 
-    newcourse = Course(invitation_code,course_name)
+    newcourse = Course(invitation_code, course_name)
     db.session.add(newcourse)
     db.session.commit()
+
+    user = User.query.filter_by(id=g.user.id).first()
+    newcourse.users.append(user)
+    user.courses.append(newcourse)
+
+    result = session['result']
+    result.append((url_for('t_class_section', course_id=invitation_code),  course_name))
+    session.pop('result', None)
+    session['result'] = result
 
     return jsonify(invitation_code)
 
@@ -203,11 +212,12 @@ def create_course():
 @login_required
 def t_class_section():
     if request.method == "GET":
-        course_name = request.args.get('course_name','')
+        course_id = request.args.get('course_id')
 
-        homework = HomeWork.query.filter_by(course_name=course_name).all()
+        homework = HomeWork.query.filter_by(course_id=course_id).all()
+        course_info = Course.query.filter_by(id=course_id).first()
 
-    return render_template('t_class_section.html', homework=homework)
+    return render_template('t_class_section.html', homework=homework, course_info=course_info)
 
 
 @app.route('/signup', methods=['GET', 'POST'])
@@ -238,7 +248,7 @@ def signup():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if g.user is not None and g.user.is_authenticated():
+    if g.user is not None and g.user.is_authenticated:
         return redirect(url_for('index'))
 
     from app.forms import LoginForm

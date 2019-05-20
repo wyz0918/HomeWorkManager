@@ -8,17 +8,12 @@
     <ul class="nav navbar-nav navbar-left">
         <li>
             <b>课程名:&nbsp;&nbsp;</b>
-            {% if homework %}
-            {{ homework[0].course_name }}
-            {% endif %}
+            {{course_info.course_name}}
 
         </li>
         <li>
-            <b>课程ID:&nbsp;&nbsp;</b>
-            {% if homework %}
-            {{ homework[0].course_name }}
-            {% endif %}
-
+            <b>课程邀请码:&nbsp;&nbsp;</b>
+            {{course_info.id}}
         </li>
     </ul>
     <ul class="nav navbar-nav navbar-right">
@@ -39,33 +34,34 @@
     </ul>
 </div>
 <!--模态框-->
-    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
-         aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true" onclick="close_tips()">×</button>
-                    <h4 class="modal-title" id="myModalLabel">创建课程</h4>
-                </div>
-                <div class="modal-body">
-                    <table>
-                        <tr>
-                            <td><b>请输入课程名:&nbsp;&nbsp;</b></td>
-                            <td><input type="text" class="form-control" size="20"></td>
-                        </tr>
-                        <div class="alert alert-success reminder" role="alert" style="display: none;">
-                        </div>
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true" onclick="close_tips()">×
+                </button>
+                <h4 class="modal-title" id="myModalLabel">创建课程</h4>
+            </div>
+            <div class="modal-body">
+                <table>
+                    <tr>
+                        <td><b>请输入课程名:&nbsp;&nbsp;</b></td>
+                        <td><input type="text" class="form-control" size="20"></td>
+                    </tr>
+                    <div class="alert alert-success reminder" role="alert" style="display: none;">
+                    </div>
 
-                    </table>
+                </table>
 
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal" onclick="close_tips()">关闭</button>
-                    <button type="submit" class="btn btn-primary summit" onclick="create_course()">确认</button>
-                </div>
-            </div><!-- /.modal-content -->
-        </div><!-- /.modal-dialog -->
-    </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal" onclick="close_tips()">关闭</button>
+                <button type="submit" class="btn btn-primary summit" onclick="create_course()">确认</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div>
 <div class="panel panel-default">
     <div class="panel-heading">
     </div>
@@ -150,10 +146,5 @@
     </div>
     {% endif %}
 </div>
-
-
-
-
-
 
 {% endblock %}
