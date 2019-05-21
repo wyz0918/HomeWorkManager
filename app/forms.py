@@ -4,6 +4,7 @@ from wtforms import StringField, BooleanField, SelectField, TextAreaField, Submi
 from wtforms.validators import DataRequired, Email, EqualTo
 from flask_wtf.file import FileField, FileAllowed, FileRequired
 from wtforms.fields.html5 import DateField
+from app import files
 from flask import g
 from app import db
 
@@ -24,10 +25,10 @@ class LoginForm(FlaskForm):
 
 class WorkArrangeForm(FlaskForm):
 
-    course_id = SelectField('Course_id', choices=[],validators=[DataRequired("")])
-    homework_batch = SelectField('Homework_batch', choices=[],validators=[DataRequired("")])
+    course_id = SelectField('Course_id',choices=[],validators=[DataRequired("")])
+    homework_batch = SelectField('Homework_batch', coerce=int,choices=[],validators=[DataRequired("")])
     homework_describe = TextAreaField('Homework_describe',validators=[DataRequired("请输入作业描述.")])
-    attach = FileField('Your Attachment', validators=[FileAllowed(['jpg', 'png'], '只能上传图片!'), FileRequired(u'文件未选择！')])
+    attach = FileField('Your Attachment', validators=[FileAllowed(files, '可以上传文件和图片!')])
     start_time = DateField('DatePicker', format='%Y-%m-%d',validators=[DataRequired("请选择开始时间.")])
     end_time = DateField('DatePicker', format='%Y-%m-%d',validators=[DataRequired("请选择截止时间.")])
 

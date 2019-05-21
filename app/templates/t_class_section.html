@@ -89,10 +89,10 @@
             <tr>
                 <a href="#">
                     <td>{{ i.batch|e }}</td>
-                    <td>{{ i.homework_name|e }}</td>
-                    <td>{{ i.publish_time|e }}</td>
+                    <td>{{ i.homework_describe|e }}</td>
+                    <td>{{ i.start_time|e }}</td>
                     <td>{{ i.end_time|e }}</td>
-                    <td>{{ i.upload_status|e }}</td>
+                    <td>{{ i.upload_num|e }}/{% if course_info.num %} {{course_info.num}} {% else %}0{% endif %}</td>
                     <td>{{ i.status|e }}</td>
                 </a>
             </tr>

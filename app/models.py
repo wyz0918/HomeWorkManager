@@ -62,9 +62,10 @@ class HomeWork(db.Model):
     course_id = db.Column(db.String(54), db.ForeignKey('course.id'))
     batch = db.Column(db.Integer)
     homework_describe = db.Column(db.String(120))
-    attach = db.Column(db.LargeBinary)
+    attach = db.Column(db.String(120))
     start_time = db.Column(db.String(24))
     end_time = db.Column(db.String(24))
+    upload_num = db.Column(db.Integer)
     status = db.Column(db.String(24))
 
     def __init__(self, course_id,batch, homework_describe,attach,start_time,end_time,upload_num,status):
@@ -87,4 +88,3 @@ class Completion(db.Model):
     complete_time = db.Column(db.String)
     score = db.Column(db.Integer)
     comment = db.Column(db.String)
-    upload_num = db.Column(db.Integer)

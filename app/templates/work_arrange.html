@@ -21,7 +21,7 @@
 
             <div class="form-group 1step ">
 
-                <label >第一步：请选择课程</label>
+                <label>第一步：请选择课程</label>
                 {{form.course_id(class = "form-control",width ="10px")}}
 
             </div>
@@ -51,13 +51,30 @@
             </div>
 
             <div class="align_center">
-            <button type="submit" class="btn btn-primary " name="do_action"  value="work_arrange">
-                提交
-            </button>
-                <button type="button" class="btn btn-primary btn-repeat "   onclick="window.location.href = '{{url_for('work_arrange')}}'">
-                重新填写
-            </button>
+                <button type="submit" class="btn btn-primary " name="do_action" value="work_arrange">
+                    提交
+                </button>
+                <button type="button" class="btn btn-primary btn-repeat "
+                        onclick="window.location.href = '{{url_for('work_arrange')}}'">
+                    重新填写
+                </button>
             </div>
+
+            {% if form.errors %}
+            <ul class="top_margin">
+                <div class="alert alert-danger" role="alert">
+                    <b>ERROR:</b> {{ form.errors }}
+                </div>
+                {% endif %}
+            </ul>
+            <ul class="top_margin">
+                {% if message %}
+                <div class="alert alert-success" role="alert">
+                    <b>SUCCESS:</b> {{ message }}
+                </div>
+            </ul>
+            {% endif %}
+
 
         </form>
     </div>

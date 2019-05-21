@@ -1,6 +1,6 @@
 from flask import render_template, flash, redirect, session, url_for, request, g
 from flask_login import login_user, logout_user, current_user, login_required
-from app import app, db, lm
+from app import app, db, lm,files
 from flask import make_response
 from app.models import User,HomeWork,Course,ElectiveCourse
 import datetime
@@ -177,28 +177,43 @@ def work_arrange():
     if request.method == "GET":
         from app.forms import WorkArrangeForm
         form = WorkArrangeForm()
-        form.course_id.choices += [(r.id, r.course_name+" ID:"+r.id) for r in g.user.courses]
-        form.homework_batch.choices += [(i, i) for i in range(1,15)]
+        form.course_id.choices += [(r.id, str(r.course_name+" ID:"+r.id)) for r in g.user.courses]
+        form.course_id.choices.insert(0, ('', '请选择课程'))
+        form.homework_batch.choices += [(i, str(i)) for i in range(1,15)]
+        form.homework_batch.choices.insert(0, (-1, '请选择作业批次'))
         return render_template('work_arrange.html', form=form)
 
     if request.method == "POST":
 
         from app.forms import WorkArrangeForm
         form = WorkArrangeForm()
-        print(form.course_id.data, form.homework_batch.data,
-                                form.homework_describe.data, form.attach.data,
-                                form.start_time.data, form.end_time.data)
+        form.course_id.choices += [(r.id, str(r.course_name+" ID:"+r.id)) for r in g.user.courses]
+        form.course_id.choices.insert(0, ('', '请选择课程'))
+        form.homework_batch.choices += [(i, str(i)) for i in range(1,15)]
+        form.homework_batch.choices.insert(0, (-1, '请选择作业批次'))
 
         if form.validate_on_submit():
-            print("yes")
+
+            if form.attach.data:
+                filename = files.save(form.attach.data)
+                file_url = files.url(filename)
+            else:
+                filename = ""
+
             newhomework = HomeWork(form.course_id.data, form.homework_batch.data,
-                                form.homework_describe.data, form.attach.data,
+                                form.homework_describe.data, filename,
                                 form.start_time.data, form.end_time.data, 0, "进行中")
 
             db.session.add(newhomework)
+
+            message = "创建作业成功！"
+
+            course = Course.query.filter_by(id=form.course_id.data).first()
+            course.homework.append(newhomework)
+            db.session.add(course)
             db.session.commit()
 
-            return render_template('work_arrange.html', form=form)
+            return render_template('work_arrange.html', form=form,message=message)
 
         return render_template('work_arrange.html',form=form)
 
