@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -28,6 +29,9 @@
     <![endif]-->
 
     <!--<script src="{{ url_for('static',filename='js/base.js') }}"></script>-->
+    {% block head %}
+    {% endblock %}
+
 
 </head>
 
@@ -81,18 +85,18 @@
                         <i class="glyphicon glyphicon-list-alt"></i>我的课程<span class="pull-right glyphicon glyphicon-chevron-down"></span>
                     </a>
                     <ul id="my_course" class="nav nav-list collapse" style="height: 0px;">
-                        {% with result = session['result'] %}
+                        {% set result = session['result'] %}
                         {% if result %}
+                        {% set active_page = active_page|default('index') -%}
                         {% for href, caption in result %}
-                        <li><a href="{{ href|e }}" class="secondmenu">{{caption|e}}</a></li>
+                        <li {% if active_page == caption %}class="active " {% endif %}><a href="{{ href|e }}" class="secondmenu">{{caption|e}}</a></li>
                         {% endfor %}
                         {% endif %}
-                        {% endwith %}
                     </ul>
                 </li>
 
                 {% set navigation_bar = [
-                (url_for('work_setting'), 'glyphicon glyphicon-plus','work_setting', '布置作业'),
+                (url_for('work_arrange'), 'glyphicon glyphicon-plus','work_arrange', '布置作业'),
                 (url_for('marking'), 'glyphicon glyphicon-ok','marking', '批改作业'),
                 (url_for('about'), 'glyphicon glyphicon-user','about', '关于本站'),
 
@@ -125,9 +129,13 @@
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
+
+
 	<script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
 	<script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
 	<script src="{{ url_for('static',filename='js/customized_style.js') }}"></script>
+    {% block footer %}
+    {% endblock %}
 
 </body>
 </html>

@@ -1,62 +1,86 @@
 {% extends "base.html" %}
 {% set active_page = "signup" %}
 {% block content %}
-<form action="{{ url_for('signup') }}" method=post>
-    {{ form.hidden_tag() }}
-    <table>
-        <tr>
-            <td><b>教工号／学号:</b></td>
-            <td>{{ form.id(size=25, class="form-control") }}</td>
-        </tr>
-        <tr>
-            <td>&nbsp;</td>
-            <td>&nbsp;</td>
-        </tr>
-        <tr>
-            <td><b>真实姓名:</b></td>
-            <td>{{ form.username(size=25, class="form-control") }}</td>
-        </tr>
-        <tr>
-            <td>&nbsp;</td>
-            <td>&nbsp;</td>
-        </tr>
-        <tr>
-            <td><b>密码:</b></td>
-            <td>{{ form.password(size=25, class="form-control") }}</td>
-        </tr>
-        <tr>
-            <td>&nbsp;</td>
-            <td>&nbsp;</td>
-        </tr>
-        <tr>
-            <td><b>重新输入密码:&nbsp;&nbsp;</b></td>
-            <td>{{ form.confirm(size=25, class="form-control") }}</td>
-        </tr>
-        <tr>
-            <td>&nbsp;</td>
-            <td>&nbsp;</td>
-        </tr>
-        <tr>
-            <td>&nbsp;</td>
-            <td>
-                <button type="submit" class="btn btn-primary" name="do_action" value="create_account">注 册</button>
-            </td>
-        </tr>
-        <tr>
-            <td>&nbsp;</td>
-            <td>&nbsp;</td>
-        </tr>
-    </table>
 
-    {% for message in form.username.errors %}
-    <div class="alert alert-danger" role="alert">
-        <b>ERROR:</b> {{ message }}
+
+<div class="panel panel-default">
+    <div class="panel-heading">
     </div>
-    {% endfor %}
-    {% for message in form.password.errors %}
-    <div class="alert alert-danger" role="alert">
-        <b>ERROR:</b> {{ message }}
+    <div class="panel-body">
+
+        <form action="{{ url_for('signup') }}" method=post>
+            {{ form.hidden_tag() }}
+            <table class="center_block">
+                <tr>
+                    <td><b>教工号／学号:</b></td>
+                    <td>{{ form.id(size=25, class="form-control") }}</td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                </tr>
+                <tr>
+                    <td><b>真实姓名:</b></td>
+                    <td>{{ form.username(size=25, class="form-control") }}</td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                </tr>
+                <tr>
+                    <td><b>密码:</b></td>
+                    <td>{{ form.password(size=25, class="form-control") }}</td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                </tr>
+                <tr>
+                    <td><b>重新输入密码:&nbsp;&nbsp;</b></td>
+                    <td>{{ form.confirm(size=25, class="form-control") }}</td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                </tr>
+
+                <tr>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                </tr>
+            </table>
+            <table class="center_block">
+                <tr>
+                    <td>
+                        <button type="submit" class="btn btn-primary signup" name="do_action" value="create_account">注册
+                        </button>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-primary sub-btn login"
+                                onclick="window.location.href = '{{url_for('login')}}'">登陆
+                        </button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                </tr>
+            </table>
+
+
+            {% for message in form.username.errors %}
+            <div class="alert alert-danger" role="alert">
+                <b>ERROR:</b> {{ message }}
+            </div>
+            {% endfor %}
+            {% for message in form.password.errors %}
+            <div class="alert alert-danger" role="alert">
+                <b>ERROR:</b> {{ message }}
+            </div>
+            {% endfor %}
+        </form>
+
+
     </div>
-    {% endfor %}
-</form>
+</div>
 {% endblock %}

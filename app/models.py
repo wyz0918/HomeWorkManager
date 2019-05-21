@@ -5,8 +5,9 @@ from app import db
 class ElectiveCourse(db.Model):
     __tablename__ = 'elective_course'
 
-    user_id = db.Column(db.String, db.ForeignKey("user.id"), primary_key=True)
-    course_id = db.Column(db.String, db.ForeignKey("course.id"), primary_key=True)
+    user_id = db.Column(db.String(54), db.ForeignKey("user.id"), primary_key=True)
+    course_id = db.Column(db.String(54), db.ForeignKey("course.id"), primary_key=True)
+    num = db.Column(db.Integer)
 
 
 class User(db.Model):
@@ -60,18 +61,30 @@ class HomeWork(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     course_id = db.Column(db.String(54), db.ForeignKey('course.id'))
     batch = db.Column(db.Integer)
-    homework_name = db.Column(db.String(120))
-    publish_time = db.Column(db.String(24))
+    homework_describe = db.Column(db.String(120))
+    attach = db.Column(db.LargeBinary)
+    start_time = db.Column(db.String(24))
     end_time = db.Column(db.String(24))
-    upload_status = db.Column(db.String(24))
     status = db.Column(db.String(24))
 
-    def __init__(self, course_name,batch, homework_name,publish_time,end_time,upload_status,status):
-        self.course_name = course_name
+    def __init__(self, course_id,batch, homework_describe,attach,start_time,end_time,upload_num,status):
+        self.course_id_ = course_id
         self.batch = batch
-        self.homework_name = homework_name
-        self.publish_time = publish_time
+        self.homework_describe = homework_describe
+        self.attach = attach
+        self.start_time = start_time
         self.end_time = end_time
-        self.upload_status = upload_status
+        self.upload_num = upload_num
         self.status = status
 
+
+
+# 完成情况
+class Completion(db.Model):
+    student_id = db.Column(db.String, db.ForeignKey("user.id"), primary_key=True)
+    homework_id = db.Column(db.String, db.ForeignKey("homework.id"), primary_key=True)
+    work = db.Column(db.LargeBinary)
+    complete_time = db.Column(db.String)
+    score = db.Column(db.Integer)
+    comment = db.Column(db.String)
+    upload_num = db.Column(db.Integer)

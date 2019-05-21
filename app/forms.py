@@ -1,11 +1,14 @@
-from flask_wtf import Form
+from flask_wtf import FlaskForm
 from wtforms import StringField, BooleanField, SelectField, TextAreaField, SubmitField, \
     PasswordField, ValidationError, RadioField
 from wtforms.validators import DataRequired, Email, EqualTo
+from flask_wtf.file import FileField, FileAllowed, FileRequired
+from wtforms.fields.html5 import DateField
+from flask import g
 from app import db
 
 
-class SignupForm(Form):
+class SignupForm(FlaskForm):
     id = StringField('ID', validators=[DataRequired("请输入教工号／学号.")])
     username = StringField('User_name', validators=[DataRequired("请输入真实姓名.")])
     password = PasswordField('Password', validators=[DataRequired("请输入密码."),
@@ -13,49 +16,20 @@ class SignupForm(Form):
     confirm = PasswordField('Repeat Password')
 
 
-class LoginForm(Form):
+class LoginForm(FlaskForm):
     id = StringField('ID', validators=[DataRequired("请输入教工号／学号.")])
     password = PasswordField('Password', validators=[DataRequired("请输入密码.")])
     remember_me = BooleanField('remember_me', default=False)
 
 
-class CreateCourseForm(Form):
-    course_name = StringField('Course_name', validators=[DataRequired("请输入课程名.")])
+class WorkArrangeForm(FlaskForm):
+
+    course_id = SelectField('Course_id', choices=[],validators=[DataRequired("")])
+    homework_batch = SelectField('Homework_batch', choices=[],validators=[DataRequired("")])
+    homework_describe = TextAreaField('Homework_describe',validators=[DataRequired("请输入作业描述.")])
+    attach = FileField('Your Attachment', validators=[FileAllowed(['jpg', 'png'], '只能上传图片!'), FileRequired(u'文件未选择！')])
+    start_time = DateField('DatePicker', format='%Y-%m-%d',validators=[DataRequired("请选择开始时间.")])
+    end_time = DateField('DatePicker', format='%Y-%m-%d',validators=[DataRequired("请选择截止时间.")])
 
 
-class OperationsForm(Form):
-    do_action = StringField('Action')
-    hostname = StringField('Hostname', validators=[DataRequired()])
-    cmd = StringField('Command', validators=[DataRequired()])
 
-
-class RacktablesForm(Form):
-    do_action = StringField('Action')
-    objectname = StringField('Object Name')
-    objecttype_choices = [('online_mode', 'Online Mode'),
-                          ('offline_mode', 'Offline Mode'),
-                          ('patch_panel', 'Patch Panel'),
-                          ('network_switch', 'Network Switch'),
-                          ('pdu', 'PDU'),
-                          ('network_security', 'Network Security')]
-    objecttype = RadioField('Object Type', choices=objecttype_choices)
-    rackspace = StringField('Rackspace')
-    rackposition_choices = [('none', 'rackposition'),
-                            ('left', 'left'), ('right', 'right'),
-                            ('front', 'front'), ('interior', 'interior'), ('back', 'back')]
-    rackposition = SelectField('Rackposition', choices=rackposition_choices)
-
-
-class EditorForm(Form):
-    do_action = StringField('Action')
-    file_path = StringField('File Path', validators=[DataRequired()])
-    file_data = TextAreaField('File Data')
-
-
-class HadoopForm(Form):
-    do_action = StringField('Action')
-    slave_hostname = StringField('Slave Hostname')
-    choices = [('none', 'master_hostname'),
-               ('idc1-hnn1', 'idc1-hnn1'), ('idc2-hnn1', 'idc2-hnn1'),
-               ('idc1-hrm1', 'idc1-hrm1'), ('idc2-hrm1', 'idc2-hrm1')]
-    master_hostname = SelectField('Master Hostname', choices=choices)

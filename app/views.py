@@ -75,11 +75,7 @@ def marking():
     return render_template('marking.html', form=form)
 
 
-@app.route('/work_setting', methods=['GET', 'POST'])
-@login_required
-def work_setting():
 
-    return render_template('work_setting.html')
 
 
 @app.route('/about', methods=['GET', 'POST'])
@@ -153,25 +149,58 @@ def about():
     return render_template('about.html', form=form)
 
 
-@app.route('/', methods=['GET', 'POST'])
-@app.route('/index', methods=['GET', 'POST'])
+@app.route('/', methods=['GET'])
+@app.route('/index', methods=['GET'])
 @login_required
 def index():
-    if request.method == "GET":
-        user = User.query.filter_by(id=g.user.id).first()
+    # if request.method == "GET":
+        # user = User.query.filter_by(id=g.user.id).first()
 
     result = []
 
-    if user:
+    # if user:
 
-        for i in user.courses:
+    for i in g.user.courses:
 
-            result.append((url_for('t_class_section', course_id=i.id), i.course_name))
+        result.append((url_for('t_class_section', course_id=i.id), i.course_name))
 
     session.pop('result', None)
     session['result'] = result
 
     return render_template('index.html', result=result)
+
+
+@app.route('/work_arrange', methods=['GET','POST'])
+@login_required
+def work_arrange():
+
+    if request.method == "GET":
+        from app.forms import WorkArrangeForm
+        form = WorkArrangeForm()
+        form.course_id.choices += [(r.id, r.course_name+" ID:"+r.id) for r in g.user.courses]
+        form.homework_batch.choices += [(i, i) for i in range(1,15)]
+        return render_template('work_arrange.html', form=form)
+
+    if request.method == "POST":
+
+        from app.forms import WorkArrangeForm
+        form = WorkArrangeForm()
+        print(form.course_id.data, form.homework_batch.data,
+                                form.homework_describe.data, form.attach.data,
+                                form.start_time.data, form.end_time.data)
+
+        if form.validate_on_submit():
+            print("yes")
+            newhomework = HomeWork(form.course_id.data, form.homework_batch.data,
+                                form.homework_describe.data, form.attach.data,
+                                form.start_time.data, form.end_time.data, 0, "进行中")
+
+            db.session.add(newhomework)
+            db.session.commit()
+
+            return render_template('work_arrange.html', form=form)
+
+        return render_template('work_arrange.html',form=form)
 
 
 @app.route('/create_course', methods=['POST'])
@@ -193,12 +222,11 @@ def create_course():
         invitation_code = part1 + part2
 
     newcourse = Course(invitation_code, course_name)
-    db.session.add(newcourse)
-    db.session.commit()
-
     user = User.query.filter_by(id=g.user.id).first()
     newcourse.users.append(user)
-    user.courses.append(newcourse)
+
+    db.session.add(newcourse)
+    db.session.commit()
 
     result = session['result']
     result.append((url_for('t_class_section', course_id=invitation_code),  course_name))

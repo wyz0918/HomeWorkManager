@@ -1,58 +1,72 @@
 {% extends "base.html" %}
 {% set active_page = "login" %}
 {% block content %}
-<form action="{{ url_for('login') }}" method="post">
-    {{ form.hidden_tag() }}
-    <table>
-        <tr>
-            <td><b>教工号／学号:&nbsp;&nbsp;</b></td>
-            <td>{{ form.id(size=20, class="form-control") }}</td>
-        </tr>
-        <tr>
-            <td>&nbsp;</td>
-            <td>&nbsp;</td>
-        </tr>
-        <tr>
-            <td><b>密码:&nbsp;&nbsp;&nbsp;&nbsp;</b></td>
-            <td>{{ form.password(size=20, class="form-control") }}</td>
-        </tr>
-        <tr>
-            <td>&nbsp;</td>
-            <td>&nbsp;</td>
-        </tr>
-        <tr>
-            <td>&nbsp;</td>
-            <td>{{ form.remember_me }} 记住我</td>
-        </tr>
-        <tr>
-            <td>&nbsp;</td>
-            <td>&nbsp;</td>
-        </tr>
-        <tr>
-            <td>&nbsp;</td>
-            <td>
-                <button type="submit" class="btn btn-primary" name="do_action" value="login">登陆</button>
-            </td>
-        </tr>
-        <tr>
-            <td>&nbsp;</td>
-            <td>&nbsp;</td>
-        </tr>
-    </table>
-    {% if failed_auth %}
-    <div class="alert alert-danger" role="alert">
-        <b>ERROR:</b> 不合法的用户名和密码. <a href="/signup">注册</a> 一个新的账号?
+
+
+<div class="panel panel-default">
+    <div class="panel-heading">
     </div>
-    {% endif %}
-    {% for message in form.id.errors %}
-    <div class="alert alert-danger" role="alert">
-        <b>ERROR:</b> {{ message }}
+    <div class="panel-body">
+        <form action="{{ url_for('login') }}" method="post">
+            {{ form.hidden_tag() }}
+            <table class="center_block">
+                <tr>
+                    <td><b>教工号／学号:&nbsp;&nbsp;</b></td>
+                    <td>{{ form.id(size=20, class="form-control") }}</td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                </tr>
+                <tr>
+                    <td><b>密码:&nbsp;&nbsp;&nbsp;&nbsp;</b></td>
+                    <td>{{ form.password(size=20, class="form-control") }}</td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td>
+                    <td>{{ form.remember_me }} 记住我</td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td>
+                </tr>
+            </table>
+            <table class="center_block">
+                <tr>
+                    <td>
+                        <button type="submit" class="btn btn-primary login" name="do_action" value="login">登陆</button>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-primary sub-btn signup"
+                                onclick="window.location.href = '{{url_for('signup')}}'">注册
+                        </button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                </tr>
+            </table>
+
+            {% if failed_auth %}
+            <div class="alert alert-danger" role="alert">
+                <b>ERROR:</b> 不合法的用户名和密码. <a href="/signup">注册</a> 一个新的账号?
+            </div>
+            {% endif %}
+            {% for message in form.id.errors %}
+            <div class="alert alert-danger" role="alert">
+                <b>ERROR:</b> {{ message }}
+            </div>
+            {% endfor %}
+            {% for message in form.password.errors %}
+            <div class="alert alert-danger" role="alert">
+                <b>ERROR:</b> {{ message }}
+            </div>
+            {% endfor %}
+        </form>
     </div>
-    {% endfor %}
-    {% for message in form.password.errors %}
-    <div class="alert alert-danger" role="alert">
-        <b>ERROR:</b> {{ message }}
-    </div>
-    {% endfor %}
-</form>
+</div>
 {% endblock %}

@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% set active_page = "work_arrange" %}
+
+{% block head %}
+
+<link href="{{ url_for('static',filename='css/jquery-ui.css') }}" rel="stylesheet">
+
+
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+    </div>
+    <div class="panel-body">
+        <form action="{{ url_for('work_arrange') }} " method="post" enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+
+            <div class="form-group 1step ">
+
+                <label >第一步：请选择课程</label>
+                {{form.course_id(class = "form-control",width ="10px")}}
+
+            </div>
+
+            <div class="form-group 2step">
+                <label>第二步：请选择作业批次</label>
+                {{form.homework_batch(class = "form-control",width ="10px")}}
+
+            </div>
+
+            <div class="form-group 3step">
+                <label>第三步：请输入作业描述，可上传图片</label>{{form.attach}}
+                {{form.homework_describe(class = "form-control",rows = "3",size =20)}}
+
+            </div>
+
+            <div class="form-group 4step">
+                <label>第四步：请选择时间</label>
+                <div>
+                    开始时间：
+                    {{ form.start_time(class='datepicker',placeholder="输入时间") }}
+                    &nbsp;&nbsp;&nbsp;&nbsp;
+                    截止时间：
+                    {{ form.end_time(class='datepicker',placeholder="输入时间") }}
+                </div>
+
+            </div>
+
+            <div class="align_center">
+            <button type="submit" class="btn btn-primary " name="do_action"  value="work_arrange">
+                提交
+            </button>
+                <button type="button" class="btn btn-primary btn-repeat "   onclick="window.location.href = '{{url_for('work_arrange')}}'">
+                重新填写
+            </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+
+{% endblock %}
+
+
+{% block footer %}
+
+<script src="https://cdn.bootcss.com/moment.js/2.22.0/moment-with-locales.js"></script>
+<script src="{{ url_for('static',filename='js/jquery-ui.js') }}"></script>
+<script src="{{ url_for('static',filename='js/work_arrange.js') }}"></script>
+
+{% endblock %}
