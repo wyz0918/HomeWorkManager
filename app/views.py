@@ -149,17 +149,18 @@ def about():
     return render_template('about.html', form=form)
 
 
+@app.route('/download/<filepath>', methods=['GET'])
+@login_required
+def download_file(filepath):
+    return app.send_static_file(filepath)
+
+
 @app.route('/', methods=['GET'])
 @app.route('/index', methods=['GET'])
 @login_required
 def index():
-    # if request.method == "GET":
-        # user = User.query.filter_by(id=g.user.id).first()
 
     result = []
-
-    # if user:
-
     for i in g.user.courses:
 
         result.append((url_for('t_class_section', course_id=i.id), i.course_name))
@@ -259,6 +260,10 @@ def t_class_section():
 
         homework = HomeWork.query.filter_by(course_id=course_id).all()
         course_info = Course.query.filter_by(id=course_id).first()
+
+        for i in homework:
+            if i.attach:
+                i.attach = files.url(i.attach)
 
     return render_template('t_class_section.html', homework=homework, course_info=course_info)
 

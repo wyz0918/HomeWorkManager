@@ -89,7 +89,14 @@
             <tr>
                 <a href="#">
                     <td>{{ i.batch|e }}</td>
-                    <td>{{ i.homework_describe|e }}</td>
+                    <td>{{ i.homework_describe|e }}
+                        {% if i.attach %}
+                        <button type="button" class="btn btn-default btn-xs" onclick="window.open('{{i.attach}}')">
+                            <span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+                            查看附件
+                        </button>
+                        {% endif %}
+                    </td>
                     <td>{{ i.start_time|e }}</td>
                     <td>{{ i.end_time|e }}</td>
                     <td>{{ i.upload_num|e }}/{% if course_info.num %} {{course_info.num}} {% else %}0{% endif %}</td>

@@ -78,13 +78,19 @@ class HomeWork(db.Model):
         self.upload_num = upload_num
         self.status = status
 
-
-
 # 完成情况
 class Completion(db.Model):
-    student_id = db.Column(db.String, db.ForeignKey("user.id"), primary_key=True)
-    homework_id = db.Column(db.String, db.ForeignKey("homework.id"), primary_key=True)
-    work = db.Column(db.LargeBinary)
-    complete_time = db.Column(db.String)
+    student_id = db.Column(db.String(54), db.ForeignKey("user.id"), primary_key=True)
+    homework_id = db.Column(db.Integer, db.ForeignKey("homework.id"), primary_key=True)
+    work_name = db.Column(db.String(24))
+    complete_time = db.Column(db.String(24))
     score = db.Column(db.Integer)
-    comment = db.Column(db.String)
+    comment = db.Column(db.String(240))
+
+    def __init__(self, student_id,homework_id, work_name,complete_time,score,comment):
+        self.student_id = student_id
+        self.homework_id = homework_id
+        self.work_name = work_name
+        self.complete_time = complete_time
+        self.score = score
+        self.comment = comment
