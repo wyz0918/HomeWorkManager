@@ -1,8 +1,8 @@
-from flask import render_template, flash, redirect, session, url_for, request, g
+from flask import render_template, flash, redirect, session, url_for, request, g,jsonify
 from flask_login import login_user, logout_user, current_user, login_required
 from app import app, db, lm,files
 from flask import make_response
-from app.models import User,HomeWork,Course,ElectiveCourse
+from app.models import User,HomeWork,Course,ElectiveCourse,Completion
 import datetime
 import re
 
@@ -17,142 +17,42 @@ def before_request():
     g.user = current_user
 
 
-
-@app.route('/marking', methods=['GET', 'POST'])
-@login_required
-def marking():
-    import paramiko
-    from app.utils.operations import remote
-    from config import basedir
-    from app.forms import OperationsForm
-
-    def isup(hostname):
-        import socket
-
-        conn = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        conn.settimeout(2)
-        try:
-            conn.connect((hostname, 22))
-            conn.close()
-        except:
-            return False
-        return True
-
-    form = OperationsForm()
-    if form.validate_on_submit():
-        username = 'dong'
-        pkey = basedir + '/sshkeys/id_rsa'
-
-        hostname = form.hostname.data
-        cmd = form.cmd.data
-
-        if not isup(hostname):
-            return render_template('marking.html', form=form, failed_host=hostname)
-
-        blacklist = ['reboot', 'shutdown', 'poweroff',
-                     'rm', 'mv', '-delete', 'source', 'sudo',
-                     '<', '<<', '>>', '>']
-        for item in blacklist:
-            if item in cmd.split():
-                return render_template('marking.html', form=form, blacklisted_word=item)
-
-        try:
-            out = remote(cmd, hostname=hostname, username=username, pkey=pkey)
-        except paramiko.AuthenticationException:
-            return render_template('marking.html', form=form, hostname=hostname, failed_auth=True)
-
-        failed_cmd = out.failed
-        succeeded_cmd = out.succeeded
-
-        return render_template('marking.html',
-                               form=form,
-                               cmd=cmd,
-                               hostname=hostname,
-                               out=out,
-                               failed_cmd=failed_cmd,
-                               succeeded_cmd=succeeded_cmd)
-
-    return render_template('marking.html', form=form)
-
-
-
-
-
-@app.route('/about', methods=['GET', 'POST'])
+@app.route('/about', methods=['GET'])
 @login_required
 def about():
-    import os
-    import time
-    from hashlib import md5
-    from app.utils.operations import local
-    from app.forms import EditorForm
-
-    form = EditorForm()
-    if form.validate_on_submit():
-        param_do = form.do_action.data
-        file_path = form.file_path.data
-
-        if param_do == 'read':
-            file_access = os.access(file_path, os.W_OK)
-            if not file_access:
-                return render_template('about.html',
-                                       form=form,
-                                       file_path=file_path,
-                                       file_access=file_access)
-
-            with open(file_path, 'rb') as f:
-                file_data = f.read()
-            f.closed
-            form.file_data.data = file_data
-            return render_template('about.html',
-                                   form=form,
-                                   file_path=file_path,
-                                   file_access=file_access)
-
-        if param_do == 'save':
-            file_access = os.access(file_path, os.W_OK)
-            if not file_access:
-                return render_template('about.html',
-                                       form=form,
-                                       file_path=file_path,
-                                       file_access=file_access)
-
-            file_md5sum = md5(open(file_path, 'rb').read()).hexdigest()
-            form_md5sum = md5(form.file_data.data.replace('\r\n', '\n')).hexdigest()
-            if file_md5sum == form_md5sum:
-                return render_template('about.html',
-                                       form=form,
-                                       file_path=file_path,
-                                       file_access=file_access,
-                                       file_no_change=True)
-
-            postfix = time.strftime("%Y%m%d%H%M%S")
-            file_backup = file_path + "." + postfix
-
-            backup_out = local("cp -p {0} {1}".format(file_path, file_backup))
-            succeeded_backup = backup_out.succeeded
-            failed_backup = backup_out.failed
-
-            file = open(file_path, 'wb')
-            file.write(form.file_data.data.replace('\r\n', '\n'))
-            file.close()
-
-        return render_template('about.html',
-                               form=form,
-                               file_path=file_path,
-                               file_access=file_access,
-                               postfix=postfix,
-                               backup_out=backup_out,
-                               failed_backup=failed_backup,
-                               succeeded_backup=succeeded_backup)
-
-    return render_template('about.html', form=form)
+    return render_template('about.html')
 
 
-@app.route('/download/<filepath>', methods=['GET'])
+@app.route('/score_comment', methods=['POST'])
 @login_required
-def download_file(filepath):
-    return app.send_static_file(filepath)
+def score_comment():
+    from sqlalchemy import and_
+    homework_id = request.values['homework_id']
+    student_id = request.values['student_id']
+    score = request.values['score']
+    comment = request.values['comment']
+
+    completion = Completion.query.filter(and_(Completion.homework_id == homework_id,
+                                              Completion.student_id == student_id)).first()
+    if completion:
+        completion.comment = comment
+        completion.score = score
+
+        db.session.add(completion)
+        db.session.commit()
+
+        message = "提交评分和评语成功！"
+
+    return jsonify(message)
+
+
+@app.route('/download/<filename>', methods=['GET'])
+@login_required
+def download_file(filename):
+    import os
+    from flask import  send_from_directory
+    directory = os.getcwd()+'/app/static/pics'
+    return send_from_directory(directory, filename, as_attachment=True)
 
 
 @app.route('/', methods=['GET'])
@@ -174,25 +74,17 @@ def index():
 @app.route('/work_arrange', methods=['GET','POST'])
 @login_required
 def work_arrange():
-
+    from app.forms import WorkArrangeForm
+    form = WorkArrangeForm()
+    form.course_id.choices += [(r.id, str(r.course_name + " ID:" + r.id)) for r in g.user.courses]
+    form.course_id.choices.insert(0, ('', '请选择课程'))
+    form.homework_batch.choices += [(i, str(i)) for i in range(1, 15)]
+    form.homework_batch.choices.insert(0, (-1, '请选择作业批次'))
     if request.method == "GET":
-        from app.forms import WorkArrangeForm
-        form = WorkArrangeForm()
-        form.course_id.choices += [(r.id, str(r.course_name+" ID:"+r.id)) for r in g.user.courses]
-        form.course_id.choices.insert(0, ('', '请选择课程'))
-        form.homework_batch.choices += [(i, str(i)) for i in range(1,15)]
-        form.homework_batch.choices.insert(0, (-1, '请选择作业批次'))
+
         return render_template('work_arrange.html', form=form)
 
-    if request.method == "POST":
-
-        from app.forms import WorkArrangeForm
-        form = WorkArrangeForm()
-        form.course_id.choices += [(r.id, str(r.course_name+" ID:"+r.id)) for r in g.user.courses]
-        form.course_id.choices.insert(0, ('', '请选择课程'))
-        form.homework_batch.choices += [(i, str(i)) for i in range(1,15)]
-        form.homework_batch.choices.insert(0, (-1, '请选择作业批次'))
-
+    else:
         if form.validate_on_submit():
 
             if form.attach.data:
@@ -219,12 +111,64 @@ def work_arrange():
         return render_template('work_arrange.html',form=form)
 
 
+@app.route('/search_homework', methods=['POST'])
+@login_required
+def search_homework():
+    homework_id = request.values['homework_id']
+    session['homework_id'] = homework_id
+
+    info = dict()
+    info["homework_info"] = list()
+
+    completion = Completion.query.filter_by(homework_id=homework_id).all()
+
+    for record in completion:
+        each_info = dict()
+        each_info["student_id"] = record.student_id
+        each_info['user_name'] = record.user.username
+        each_info['complete_time'] = record.complete_time
+        each_info['attach'] = 'download/'+record.work_name
+        each_info['score'] = record.score
+        each_info['comment'] = record.comment
+
+        info["homework_info"].append(each_info)
+
+    return jsonify(info)
+
+
+@app.route('/marking', methods=['GET', 'POST'])
+@login_required
+def marking():
+    from app.forms import MarkingForm
+    form = MarkingForm()
+    form.course_id.choices += [(r.id, str(r.course_name + " ID:" + r.id)) for r in g.user.courses]
+    form.course_id.choices.insert(0, ('', '请选择课程'))
+    form.homework_batch.choices += [(i, str(i)) for i in range(1, 15)]
+    form.homework_batch.choices.insert(0, (-1, '请选择批次'))
+    if request.method == "GET":
+
+        return render_template('marking.html', form=form)
+    else:
+
+        if form.validate_on_submit():
+            from sqlalchemy import and_
+            homework = HomeWork.query.filter(and_(HomeWork.course_id ==form.course_id.data,HomeWork.batch==form.homework_batch.data)).all()
+            course_info = Course.query.filter_by(id=form.course_id.data).first()
+
+            for i in homework:
+                if i.attach:
+                    i.attach = files.url(i.attach)
+
+            return render_template('marking.html', form=form,homework=homework,course_info=course_info)
+
+        return render_template('marking.html',form=form)
+
+
 @app.route('/create_course', methods=['POST'])
 @login_required
 def create_course():
     from random import choice
     from string import ascii_uppercase as uc, digits as dg
-    from flask import jsonify
 
     course_name = request.values['course_name']
     part1 = ''.join(choice(uc) for j in range(3))  # 三个大写的英文
@@ -320,3 +264,11 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('index'))
+
+
+# @app.route('/init')
+# def init():
+#     user = User.query.filter_by(id="031602331").first()
+#     completion = Completion.query.filter_by(student_id="031602331").first()
+#     completion.user.append(completion)
+#     return 1;

@@ -16,6 +16,7 @@ class User(db.Model):
     username = db.Column(db.String(54), unique=True)
     passwdhash = db.Column(db.String(54))
     identity = db.Column(db.String(4))
+    completion = db.relationship("Completion", uselist=False, backref="user")
 
     is_authenticated = True
     is_active = True
@@ -68,6 +69,8 @@ class HomeWork(db.Model):
     upload_num = db.Column(db.Integer)
     status = db.Column(db.String(24))
 
+    completion = db.relationship("Completion", uselist=False, backref="homework")
+
     def __init__(self, course_id,batch, homework_describe,attach,start_time,end_time,upload_num,status):
         self.course_id_ = course_id
         self.batch = batch
@@ -78,8 +81,10 @@ class HomeWork(db.Model):
         self.upload_num = upload_num
         self.status = status
 
+
 # 完成情况
 class Completion(db.Model):
+    __tablename__ = 'completion'
     student_id = db.Column(db.String(54), db.ForeignKey("user.id"), primary_key=True)
     homework_id = db.Column(db.Integer, db.ForeignKey("homework.id"), primary_key=True)
     work_name = db.Column(db.String(24))

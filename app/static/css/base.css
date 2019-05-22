@@ -58,7 +58,21 @@ ol,ul{
     margin-top: 20px;
 }
 
-.download_file{
+.marking_nav{
+    height: 40px;
+    line-height: 40px;
+    margin:15px 0px;
+    text-align:center;
+}
+.marking_selector{
+    padding:5px;
+    width:150px;
+}
 
+.about_img{
+    width: 300px;
 
+}
+.about_us{
+    font-size: 18px;
 }

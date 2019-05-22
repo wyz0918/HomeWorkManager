@@ -33,4 +33,10 @@ class WorkArrangeForm(FlaskForm):
     end_time = DateField('DatePicker', format='%Y-%m-%d',validators=[DataRequired("请选择截止时间.")])
 
 
+class MarkingForm(FlaskForm):
+
+    course_id = SelectField('Course_id',choices=[],validators=[DataRequired("")])
+    homework_batch = SelectField('Homework_batch', coerce=int,choices=[],validators=[DataRequired("")])
+
+
 
