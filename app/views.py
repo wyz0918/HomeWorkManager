@@ -1,8 +1,8 @@
-from flask import render_template, flash, redirect, session, url_for, request, g,jsonify
+from flask import render_template, flash, redirect, session, url_for, request, g, jsonify
 from flask_login import login_user, logout_user, current_user, login_required
-from app import app, db, lm,files
+from app import app, db, lm, files
 from flask import make_response
-from app.models import User,HomeWork,Course,ElectiveCourse,Completion
+from app.models import User, HomeWork, Course, ElectiveCourse, Completion
 import datetime
 import re
 
@@ -50,8 +50,8 @@ def score_comment():
 @login_required
 def download_file(filename):
     import os
-    from flask import  send_from_directory
-    directory = os.getcwd()+'/app/static/pics'
+    from flask import send_from_directory
+    directory = os.getcwd() + '/app/static/pics'
     return send_from_directory(directory, filename, as_attachment=True)
 
 
@@ -59,10 +59,8 @@ def download_file(filename):
 @app.route('/index', methods=['GET'])
 @login_required
 def index():
-
     result = []
-    for i in g.user.courses:
-
+    for i in g.user.created_courses:
         result.append((url_for('t_class_section', course_id=i.id), i.course_name))
 
     session.pop('result', None)
@@ -71,12 +69,12 @@ def index():
     return render_template('index.html', result=result)
 
 
-@app.route('/work_arrange', methods=['GET','POST'])
+@app.route('/work_arrange', methods=['GET', 'POST'])
 @login_required
 def work_arrange():
     from app.forms import WorkArrangeForm
     form = WorkArrangeForm()
-    form.course_id.choices += [(r.id, str(r.course_name + " ID:" + r.id)) for r in g.user.courses]
+    form.course_id.choices += [(r.id, str(r.course_name + " ID:" + r.id)) for r in g.user.created_courses]
     form.course_id.choices.insert(0, ('', '请选择课程'))
     form.homework_batch.choices += [(i, str(i)) for i in range(1, 15)]
     form.homework_batch.choices.insert(0, (-1, '请选择作业批次'))
@@ -94,21 +92,21 @@ def work_arrange():
                 filename = ""
 
             newhomework = HomeWork(form.course_id.data, form.homework_batch.data,
-                                form.homework_describe.data, filename,
-                                form.start_time.data, form.end_time.data, 0, "进行中")
+                                   form.homework_describe.data, filename,
+                                   form.start_time.data, form.end_time.data, 0, "进行中")
 
             db.session.add(newhomework)
 
             message = "创建作业成功！"
 
             course = Course.query.filter_by(id=form.course_id.data).first()
-            course.homework.append(newhomework)
+            course.homeworks.append(newhomework)
             db.session.add(course)
             db.session.commit()
 
-            return render_template('work_arrange.html', form=form,message=message)
+            return render_template('work_arrange.html', form=form, message=message)
 
-        return render_template('work_arrange.html',form=form)
+        return render_template('work_arrange.html', form=form)
 
 
 @app.route('/search_homework', methods=['POST'])
@@ -127,7 +125,7 @@ def search_homework():
         each_info["student_id"] = record.student_id
         each_info['user_name'] = record.user.username
         each_info['complete_time'] = record.complete_time
-        each_info['attach'] = 'download/'+record.work_name
+        each_info['attach'] = 'download/' + record.work_name
         each_info['score'] = record.score
         each_info['comment'] = record.comment
 
@@ -141,7 +139,7 @@ def search_homework():
 def marking():
     from app.forms import MarkingForm
     form = MarkingForm()
-    form.course_id.choices += [(r.id, str(r.course_name + " ID:" + r.id)) for r in g.user.courses]
+    form.course_id.choices += [(r.id, str(r.course_name + " ID:" + r.id)) for r in g.user.created_courses]
     form.course_id.choices.insert(0, ('', '请选择课程'))
     form.homework_batch.choices += [(i, str(i)) for i in range(1, 15)]
     form.homework_batch.choices.insert(0, (-1, '请选择批次'))
@@ -152,16 +150,17 @@ def marking():
 
         if form.validate_on_submit():
             from sqlalchemy import and_
-            homework = HomeWork.query.filter(and_(HomeWork.course_id ==form.course_id.data,HomeWork.batch==form.homework_batch.data)).all()
+            homework = HomeWork.query.filter(
+                and_(HomeWork.course_id == form.course_id.data, HomeWork.batch == form.homework_batch.data)).all()
             course_info = Course.query.filter_by(id=form.course_id.data).first()
 
             for i in homework:
                 if i.attach:
                     i.attach = files.url(i.attach)
 
-            return render_template('marking.html', form=form,homework=homework,course_info=course_info)
+            return render_template('marking.html', form=form, homework=homework, course_info=course_info)
 
-        return render_template('marking.html',form=form)
+        return render_template('marking.html', form=form)
 
 
 @app.route('/create_course', methods=['POST'])
@@ -189,7 +188,7 @@ def create_course():
     db.session.commit()
 
     result = session['result']
-    result.append((url_for('t_class_section', course_id=invitation_code),  course_name))
+    result.append((url_for('t_class_section', course_id=invitation_code), course_name))
     session.pop('result', None)
     session['result'] = result
 
@@ -228,7 +227,7 @@ def signup():
         else:
             identity = 'S'
 
-        newuser = User(form.id.data, form.username.data,form.password.data,identity)
+        newuser = User(form.id.data, form.username.data, form.password.data, identity)
         db.session.add(newuser)
         db.session.commit()
 
@@ -264,7 +263,6 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('index'))
-
 
 # @app.route('/init')
 # def init():

@@ -5,9 +5,11 @@ from app import db
 class ElectiveCourse(db.Model):
     __tablename__ = 'elective_course'
 
-    user_id = db.Column(db.String(54), db.ForeignKey("user.id"), primary_key=True)
+    student_id = db.Column(db.String(54), db.ForeignKey("user.id"), primary_key=True)
     course_id = db.Column(db.String(54), db.ForeignKey("course.id"), primary_key=True)
     num = db.Column(db.Integer)
+    student = db.relationship("User", back_populates="joined_courses")
+    joined_course = db.relationship("Course", back_populates="students")
 
 
 class User(db.Model):
@@ -16,13 +18,16 @@ class User(db.Model):
     username = db.Column(db.String(54), unique=True)
     passwdhash = db.Column(db.String(54))
     identity = db.Column(db.String(4))
-    completion = db.relationship("Completion", uselist=False, backref="user")
+
+    created_courses = db.relationship("Course", back_populates="creator", lazy='dynamic')  # *****
+    homeworks = db.relationship("Completion", back_populates="student", lazy='dynamic')  # *****
+    joined_courses = db.relationship("ElectiveCourse", back_populates="student", lazy='dynamic')  # *****
 
     is_authenticated = True
     is_active = True
     is_anonymous = False
 
-    def __init__(self, id,username, password,identity):
+    def __init__(self, id, username, password, identity):
         self.id = id
         self.username = username
         self.set_password(password)
@@ -48,13 +53,16 @@ class Course(db.Model):
     __tablename__ = 'course'
     id = db.Column(db.String(54), primary_key=True)
     course_name = db.Column(db.String(54))
+    creator_id = db.Column(db.String(54), db.ForeignKey('user.id'))  # *****
 
-    homework = db.relationship("HomeWork", lazy='dynamic')
-    users = db.relationship("User", secondary='elective_course', backref="courses", lazy='dynamic')
+    creator = db.relationship("User", back_populates="created_courses")  # *****
+    homeworks = db.relationship("HomeWork", back_populates="course", lazy='dynamic')
+    students = db.relationship("ElectiveCourse", back_populates='joined_course', lazy='dynamic')
 
-    def __init__(self, id,course_name):
+    def __init__(self, id, course_name, creator_id):
         self.id = id
         self.course_name = course_name
+        self.creator_id = creator_id
 
 
 class HomeWork(db.Model):
@@ -69,10 +77,11 @@ class HomeWork(db.Model):
     upload_num = db.Column(db.Integer)
     status = db.Column(db.String(24))
 
-    completion = db.relationship("Completion", uselist=False, backref="homework")
+    course = db.relationship("Course", back_populates="homeworks")
+    students = db.relationship("Completion", back_populates="homework", lazy='dynamic')  # *****
 
-    def __init__(self, course_id,batch, homework_describe,attach,start_time,end_time,upload_num,status):
-        self.course_id_ = course_id
+    def __init__(self, course_id, batch, homework_describe, attach, start_time, end_time, upload_num, status):
+        self.course_id = course_id
         self.batch = batch
         self.homework_describe = homework_describe
         self.attach = attach
@@ -91,11 +100,16 @@ class Completion(db.Model):
     complete_time = db.Column(db.String(24))
     score = db.Column(db.Integer)
     comment = db.Column(db.String(240))
+    address = db.Column(db.String(54))
 
-    def __init__(self, student_id,homework_id, work_name,complete_time,score,comment):
+    student = db.relationship("User", back_populates="homeworks")
+    homework = db.relationship("HomeWork", back_populates="students")
+
+    def __init__(self, student_id, homework_id, work_name, complete_time, score, comment, address):
         self.student_id = student_id
         self.homework_id = homework_id
         self.work_name = work_name
         self.complete_time = complete_time
         self.score = score
         self.comment = comment
+        self.address = address
