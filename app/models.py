@@ -11,6 +11,10 @@ class ElectiveCourse(db.Model):
     student = db.relationship("User", back_populates="joined_courses")
     joined_course = db.relationship("Course", back_populates="students")
 
+    def __init__(self, student_id, course_id):
+        self.student_id = student_id
+        self.course_id = course_id
+
 
 class User(db.Model):
     __tablename__ = 'user'
@@ -113,3 +117,13 @@ class Completion(db.Model):
         self.score = score
         self.comment = comment
         self.address = address
+
+
+class AdditionalStudentInfo(db.Model):
+    __tablename__ = 'addtional_student_info'
+    student_id = db.Column(db.String(54), db.ForeignKey("user.id"), primary_key=True)
+    enrollment_year = db.Column(db.String(8))
+    university = db.Column(db.String(54))
+    college = db.Column(db.String(54))
+    major = db.Column(db.String(54))
+    birthday = db.Column(db.String(24))

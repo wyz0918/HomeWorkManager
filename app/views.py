@@ -2,7 +2,7 @@ from flask import render_template, flash, redirect, session, url_for, request, g
 from flask_login import login_user, logout_user, current_user, login_required
 from app import app, db, lm, files
 from flask import make_response
-from app.models import User, HomeWork, Course, ElectiveCourse, Completion
+from app.models import User, HomeWork, Course, ElectiveCourse, Completion, AdditionalStudentInfo
 import datetime
 import re
 
@@ -123,7 +123,7 @@ def search_homework():
     for record in completion:
         each_info = dict()
         each_info["student_id"] = record.student_id
-        each_info['user_name'] = record.user.username
+        each_info['user_name'] = record.student.username
         each_info['complete_time'] = record.complete_time
         each_info['attach'] = 'download/' + record.work_name
         each_info['score'] = record.score
@@ -180,9 +180,9 @@ def create_course():
         part2 = ''.join(choice(dg) for j in range(3))  # 三个随机数字
         invitation_code = part1 + part2
 
-    newcourse = Course(invitation_code, course_name)
+    newcourse = Course(invitation_code, course_name, g.user.id)
     user = User.query.filter_by(id=g.user.id).first()
-    newcourse.users.append(user)
+    newcourse.creator = user
 
     db.session.add(newcourse)
     db.session.commit()
@@ -264,9 +264,63 @@ def logout():
     logout_user()
     return redirect(url_for('index'))
 
+
 # @app.route('/init')
 # def init():
 #     user = User.query.filter_by(id="031602331").first()
 #     completion = Completion.query.filter_by(student_id="031602331").first()
 #     completion.user.append(completion)
 #     return 1;
+
+
+@app.route('/home', methods=['GET', 'POST'])
+@login_required
+def home():
+    if request.method == "GET":
+        student_id = request.args.get('student_id')
+        course_id = request.args.get('course_id')
+
+        # ----- 学生的附加信息
+        student_additional_info = AdditionalStudentInfo.query.get(student_id)
+
+        # ----- course_id的课程需要完成的所有作业
+        homeworks_of_course_all = Course.query.get(course_id).homeworks
+
+        # ----- 已经上传的作业和未上传作业
+        homeworks_of_course_complete = list()
+        homeworks_of_course_incomplete = list()
+        completions_of_student = Completion.query.filter_by(student_id=student_id).all()
+        homeworks_of_student_complete = list()
+        for completion in completions_of_student:
+            homeworks_of_student_complete.append(completion.homework)
+        for homework in homeworks_of_course_all:
+            if homework in homeworks_of_student_complete:
+                homeworks_of_course_complete.append(homework)
+            else:
+                homeworks_of_course_incomplete.append(homework)
+
+
+@app.route('/query_course', methods=['GET', 'POST'])
+@login_required
+def query_course():
+    if request.method == "GET":
+        course_id = request.args.get('course_id')
+
+        course = Course.query.get(course_id)
+        teacher = course.creator
+        homeworks = HomeWork.query.filter_by(course_id=course_id).all()
+        students = list()
+        elective_course_records = ElectiveCourse.query.filter_by(course_id=course_id).all()
+        for record in elective_course_records:
+            students.append(User.query.get(record.student_id))
+
+        homeworks_num = len(homeworks)
+        students_num = len(students)
+
+
+@app.route('/query_homework', methods=['GET', 'POST'])
+@login_required
+def query_homework():
+    if request.method == "GET":
+        homework_id = request.args.get('homework_id')
+        homwork = HomeWork.query.get(homework_id)
