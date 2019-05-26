@@ -5,9 +5,10 @@ from flask_uploads import UploadSet, configure_uploads, patch_request_class
 
 app = Flask(__name__, static_url_path='')
 app.config.from_object('config')
+app.config['JSON_AS_ASCII'] = False
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
 db = SQLAlchemy(app)
-
-
 files = UploadSet('files')
 configure_uploads(app, files)
 patch_request_class(app)

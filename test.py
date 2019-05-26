@@ -1,6 +1,7 @@
 if __name__ == '__main__':
-    from app.models import User, HomeWork, Course, ElectiveCourse, Completion, AdditionalStudentInfo
-
+    # from app.models import User, HomeWork, Course, ElectiveCourse, Completion, AdditionalStudentInfo
+    import time
+    print(time.strftime('%Y.%m.%d'))
     # print(Course.query.filter_by(course_name="大学物理").all())
     # print(Course.query.filter_by(course_name="大学物理").first())
     # print(Course.query.get("QQQ111"))

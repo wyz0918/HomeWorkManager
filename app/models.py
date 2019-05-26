@@ -15,6 +15,12 @@ class ElectiveCourse(db.Model):
         self.student_id = student_id
         self.course_id = course_id
 
+    def obj2dict(self):
+        return {
+            "student_id": self.student_id,
+            "course_id": self.course_id
+        }
+
 
 class User(db.Model):
     __tablename__ = 'user'
@@ -52,6 +58,58 @@ class User(db.Model):
     def get_indentity(self):
         return self.identity
 
+    def obj2dict(self):
+        return {
+            "id": self.id,
+            "username": self.username,
+            "identity": self.identity
+        }
+
+        # if self.identity == "T":
+        #     created_courses_info = list()
+        #     for created_course in self.created_courses:
+        #         created_course_info = dict()
+        #         created_course_info["id"] = created_course.id
+        #         created_course_info["course_name"] = created_course.course_name
+        #         created_courses_info.append(created_course_info)
+        #
+        #     return {
+        #         "id": self.id,
+        #         "username": self.username,
+        #         "identity": self.identity,
+        #         "created_courses": created_courses_info
+        #     }
+        # else:
+        #     homeworks_info = list()
+        #     for homework in self.homeworks:
+        #         homework_info = dict()
+        #         homework_info["id"] = homework.id
+        #         homework_info["course_id"] = homework.course_id
+        #         homework_info["batch"] = homework.batch
+        #         homework_info["homework_describe"] = homework.homework_describe
+        #         homework_info["attach"] = homework.attach
+        #         homework_info["start_time"] = homework.start_time
+        #         homework_info["end_time"] = homework.end_time
+        #         homework_info["upload_num"] = homework.upload_num
+        #         homework_info["status"] = homework.status
+        #         homeworks_info.append(homework_info)
+        #
+        #     joined_courses_info = list()
+        #     for joined_course in self.joined_courses:
+        #         joined_course_info = dict()
+        #         joined_course_info["id"] = joined_course.id
+        #         joined_course_info["course_name"] = joined_course.id
+        #         joined_course_info["creator_id"] = joined_course.id
+        #         joined_courses_info.append(joined_course_info)
+        #
+        #     return {
+        #         "id": self.id,
+        #         "username": self.username,
+        #         "identity": self.identity,
+        #         "homeworks_info": homeworks_info,
+        #         "joined_courses_info": joined_courses_info
+        #     }
+
 
 class Course(db.Model):
     __tablename__ = 'course'
@@ -67,6 +125,46 @@ class Course(db.Model):
         self.id = id
         self.course_name = course_name
         self.creator_id = creator_id
+
+    def obj2dict(self):
+        return {
+            "id": self.id,
+            "course_name": self.course_name,
+            "creator_id": self.creator_id,
+            "creator_name": self.creator.username
+        }
+
+        # homeworks_info = list()
+        # for homework in self.homeworks:
+        #     homework_info = dict()
+        #     homework_info["id"] = homework.id
+        #     homework_info["course_id"] = homework.course_id
+        #     homework_info["batch"] = homework.batch
+        #     homework_info["homework_describe"] = homework.homework_describe
+        #     homework_info["attach"] = homework.attach
+        #     homework_info["start_time"] = homework.start_time
+        #     homework_info["end_time"] = homework.end_time
+        #     homework_info["upload_num"] = homework.upload_num
+        #     homework_info["status"] = homework.status
+        #     homeworks_info.append(homework_info)
+        #
+        # students_info = list()
+        # for student in self.students:
+        #     student_info = dict()
+        #     student_info["id"] = student.id
+        #     student_info["username"] = student.username
+        #     students_info.append(student_info)
+        #
+        # return {
+        #     "id": self.id,
+        #     "course_name": self.course_name,
+        #     "creator": {
+        #         "id": self.creator.id,
+        #         "username": self.creator.username
+        #     },
+        #     "homeworks": homeworks_info,
+        #     "students": students_info
+        # }
 
 
 class HomeWork(db.Model):
@@ -94,6 +192,37 @@ class HomeWork(db.Model):
         self.upload_num = upload_num
         self.status = status
 
+    def obj2dict(self):
+        return {
+            "id": self.id,
+            "course_id": self.course_id,
+            "batch": self.batch,
+            "homework_describe": self.homework_describe,
+            "attach": self.attach,
+            "start_time": self.start_time,
+            "end_time": self.end_time,
+            "upload_num": self.upload_num,
+            "status": self.status,
+            "course_name": self.course.course_name
+        }
+
+        # return {
+        #     "id": self.id,
+        #     "course_id": self.course_id,
+        #     "batch": self.batch,
+        #     "homework_describe": self.homework_describe,
+        #     "attach": self.attach,
+        #     "start_time": self.start_time,
+        #     "end_time": self.end_time,
+        #     "upload_num": self.upload_num,
+        #     "status": self.status,
+        #     "course": {
+        #         "id": self.course.id,
+        #         "name": self.course.course_name,
+        #         "creator_id": self.course.creator_id
+        #     }
+        # }
+
 
 # 完成情况
 class Completion(db.Model):
@@ -118,6 +247,17 @@ class Completion(db.Model):
         self.comment = comment
         self.address = address
 
+    def obj2dict(self):
+        return {
+            "student_id": self.student_id,
+            "homework_id": self.homework_id,
+            "work_name": self.work_name,
+            "complete_time": self.complete_time,
+            "score": self.score,
+            "comment": self.comment,
+            "address": self.address
+        }
+
 
 class AdditionalStudentInfo(db.Model):
     __tablename__ = 'addtional_student_info'
@@ -127,3 +267,21 @@ class AdditionalStudentInfo(db.Model):
     college = db.Column(db.String(54))
     major = db.Column(db.String(54))
     birthday = db.Column(db.String(24))
+
+    def __init__(self, student_id, enrollment_year, university, college, major, birthday):
+        self.student_id = student_id
+        self.enrollment_year = enrollment_year
+        self.university = university
+        self.college = college
+        self.major = major
+        self.birthday = birthday
+
+    def obj2dict(self):
+        return {
+            "student_id": self.student_id,
+            "enrollment_year": self.enrollment_year,
+            "university": self.university,
+            "college": self.college,
+            "major": self.major,
+            "birthday": self.birthday
+        }

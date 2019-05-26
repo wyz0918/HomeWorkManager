@@ -58,8 +58,8 @@
                 {% if g.user.is_authenticated%}
                 <li><a href="{{ url_for('logout') }}">退出</a></li>
                 {% else %}
-                <li {% if active_page==
-                "signup" %}class="active"{% endif %}><a href="{{ url_for('signup') }}">注册</a></li>
+                <li {% if active_page=="signup" %}
+                    class="active"{% endif %}><a href="{{ url_for('signup') }}">注册</a></li>
                 {% endif %}
             </ul>
         </div><!--/.nav-collapse -->
