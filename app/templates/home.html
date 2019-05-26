@@ -1,0 +1,308 @@
+{% extends "base2.html" %}
+{% set active_page = "mypage" %}
+{% block content %}
+<div class="tab-content">
+    <div class="tab-pane" id="my_homework">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <span class="h5">作业管理 / 我的作业</span>
+            </div>
+            <div class="panel-body">
+                <div class="container col-xs-12" style="margin-top: 20px">
+                    <ul class="nav nav-tabs">
+                        <li class="active" ><a href="#unfinish" data-toggle="tab">未完成</a></li>
+                        <li><a href="#finish" data-toggle="tab">已完成</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="unfinish">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>课程名</th>
+                                        <th>批次</th>
+                                        <th>开始时间</th>
+                                        <th>截止时间</th>
+                                        <th>提交</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="unfinishworks"></tbody>
+                            </table>
+                            <div class="text-center">
+                                    <ul class="pagination" id="itempage1"></ul>
+                            </div>
+                        </div>
+                        <div class="tab-pane" id="finish">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>课程名</th>
+                                        <th>批次</th>
+                                        <th>开始时间</th>
+                                        <th>截止时间</th>
+                                        <th>分数</th>
+                                        <th>完成情况</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="finishworks"></tbody>
+                            </table>
+                            <div class="text-center">
+                                <ul class="pagination" id="itempage2"></ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-footer"></div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        var unfinishworks={{content.homeworks_incomplete|tojson}};
+        var finishworks={{content.homeworks_complete|tojson}};
+        var user={{content.student_base_info|tojson}};
+        var additional_info={{content.student_additional_info|tojson}};
+        var my_class={{content.joined_courses|tojson}};
+        var info={{content.info|tojson}};
+    </script>
+    <div class="tab-pane" id="my_message">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <span class="h5">个人设置 / 个人信息</span>
+            </div>
+            <div class="panel-body">
+                <div class="container">
+                    <div class="row-fluid" style="margin-left:20px;margin-top:10px">
+                        <div class="col-xs-2" >
+                            <img src="img/photo.png" class="img-rounded img-responsive">
+                        </div>
+                        <div class="col-xs-10" >
+                            <div class="text-left"style="margin-left:10px">
+                                <div class="h2" style="padding-top: 23px">{{content.student_base_info.username}}</div>
+                                <div class="h4" style="padding-top: 10px">
+                                    {% if content.student_additional_info.university %}
+                                    <span class="text-success">{{content.student_additional_info.university+content.student_additional_info.major}}</span>
+                                    {% else %}
+                                    <span class="text-warning">请完善个人信息</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                <div class="container" style="padding-top: 40px;margin-left:20px">
+                    <div class="row-fluid">
+                        <div class="col-xs-4">
+                            <div class="input-group">
+                                <span class="input-group-btn">
+                                    <button class="btn btn-primary"  type="button">我的昵称</button>
+                                </span>
+                                <input type="text" id="myname" class="form-control" value={{content.student_base_info.username}} readonly>
+                            </div><br>
+                            <div class="input-group">
+                                <span class="input-group-btn">
+                                    <button class="btn btn-primary" type="button">出生日期</button>
+                                </span>
+                                <input type="text" id="mybirth" class="form-control" value={{content.student_additional_info.birthday}} readonly>
+                            </div><br>
+                            <div class="input-group">
+                                <span class="input-group-btn">
+                                    <button class="btn btn-primary" type="button">我的年级</button>
+                                </span>
+                                <input type="text" id="mygrade" class="form-control" value={{content.student_additional_info.enrollment_year}} readonly>
+                            </div><br>
+                        </div>
+                        <div class="col-xs-4" style="margin-left:30px">
+                             <div class="input-group">
+                                <span class="input-group-btn">
+                                    <button class="btn btn-primary" type="button">所在学校</button>
+                                </span>
+                                <input type="text" id="myschool" class="form-control" value={{content.student_additional_info.university}} readonly>
+                            </div><br>
+                            <div class="input-group">
+                                <span class="input-group-btn">
+                                    <button class="btn btn-primary" type="button">所在学院</button>
+                                </span>
+                                <input type="text" id="mycollage" class="form-control" value={{content.student_additional_info.college}} readonly>
+                            </div><br>
+                            <div class="input-group">
+                                <span class="input-group-btn">
+                                    <button class="btn btn-primary" type="button">你的专业</button>
+                                </span>
+                                <input type="text" id="mymajor" class="form-control" value={{content.student_additional_info.major}} readonly>
+                            </div><br>
+                        </div>
+                        <div class="col-xs-4"></div>
+                    </div>
+                </div>
+                <div class="col-xs-6 col-xs-offset-3">
+                     <button type="button" class="btn btn-default" id="mchange" style="margin: 20px;margin-left:25px ;width: 100px;">修 改</button>
+                     <button type="button" class="btn btn-primary" id="msubmit" style="margin: 20px; width: 100px;" disabled>完 成</button>
+                </div>
+            </div>
+            <div class="panel-footer"></div>
+        </div>
+    </div>
+    <div class="tab-pane" id="change_pw">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <span class="h5">个人设置 / 修改密码</span>
+            </div>
+            <div class="panel-body">
+                <div class="col-xs-4 col-xs-offset-3">
+                    <div class="input-group" style="margin-top: 30px">
+                        <span class="input-group-btn">
+                            <button class="btn btn-primary" type="button">输入旧密码</button>
+                        </span>
+                        <input type="password" id="old_password" class="form-control"readonly>
+                    </div><br>
+                     <div class="input-group">
+                        <span class="input-group-btn">
+                            <button class="btn btn-primary" type="button">输入新密码</button>
+                        </span>
+                        <input type="password" id="new_password" class="form-control"readonly>
+                    </div><br>
+                     <div class="input-group">
+                        <span class="input-group-btn">
+                            <button class="btn btn-primary" type="button">确认新密码</button>
+                        </span>
+                        <input type="password" id="new_password1" class="form-control"readonly>
+                    </div><br>
+                     <div class="text-center">
+                        <button type="button" class="btn btn-default" id="cpchange" style="margin-top: 20px; width: 85px;margin-right:8px">修 改</button>
+                        <button type="button" class="btn btn-primary" id="cpsubmit" style="margin-top: 20px;width: 85px;margin-left:8px" disabled>提 交</button>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-footer"></div>
+        </div>
+    </div>
+    <div class="tab-pane active" id="the_home">
+        <div class="container-fluid mycontain">
+            <div class="col-xs-5">
+                <div class="panel panel-default">
+                    <div class="panel-heading"><span class="h5">通知公告</span></div>
+                    <div class="panel-body" id="infomsg">
+                        <table class="table mycontain" style="margin-top:20px">
+                            <tbody id="infotable"></tbody>
+                        </table>
+                        <div class="text-right">
+                            <a style="margin-right:15px" href="javascript:void(0)" onClick="itf.gop(itf.currp-1)">上一页</a>
+                            <a href="javascript:void(0)" onClick="itf.gop(itf.currp+1)">下一页</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-6 col-xs-offser-5">
+                 <div class="panel panel-default">
+                    <div class="panel-heading"><span class="h5">系统简介</span></div>
+                    <div class="panel-body">
+                        <h2>你好！{{content.student_base_info.username}}</h2>
+                        <p>本系统主要用于。。。。。。。。。。。</p>
+                        <p>...</p>
+                        <p>...</p>
+                        <p>...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid mycontain">
+            <div class="col-xs-11">
+                <div class="penel panel-default mycontain">
+                    <div class="panel-heading"><span class="h5">课程列表</span></div>
+                    <div class="panel-body" style="background:white">
+                        <div class="row" id="class_push">
+                            {% if content.joined_courses==None %}
+                            <h2 style="margin-left:20px">暂未加入任何课程!</h2>
+                            {% else %}
+                            {% for course in content.joined_courses %}
+                            {% if loop.index <5  %}
+                            <div class="col-xs-3">
+                                <div class="thumbnail">
+                                    <img src="{{ url_for('static',filename='img/cor.png') }}" alt="通用的占位符缩略图">
+                                    <div class="caption">
+                                        <h4>{{course.course_name}}</h4>
+                                        <div class="text-center">
+                                             <a href="/course?id={{course.id}}&type=1" target="_blank" class="btn btn-info" role="button" style="margin-right:3px">进入课程</a>
+                                             <a href="/course?id={{course.id}}&type=2" target="_blank" class="btn btn-default" role="button"style="margin-left:3px">查看作业</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                            {% endfor %}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="tab-pane" id="my_class">
+        <div class="panel panel-default">
+            <div class="panel-heading"><span class="h5">课程中心 / 我的课程</span></div>
+            <div class="panel-body">
+                <div class="container col-xs-10" style="margin-top: 20px" id="class_msg">
+                    <div id="my_class_list"></div>
+                    <div class="text-center">
+                        <ul class="pagination" id="itempage3"></ul>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-footer"></div>
+        </div>
+    </div>
+    <div class="tab-pane" id="search_class">
+        <div class="panel panel-default">
+            <div class="panel-heading"><span class="h5">课程中心 / 查找课程</span></div>
+            <div class="panel-body">
+                <div class="container col-xs-10" style="margin-top:20px">
+                    <div class="input-group" >
+                        <input type="text" id="search" class="form-control" placeholder="输入班级名称查找">
+                        <span class="input-group-btn">
+                            <button class="btn btn-primary" type="button" style="width:60px" id="search_course"><span class="glyphicon glyphicon-search"></span></button>
+                        </span>
+                    </div><br>
+                    <div id="search_class_list"></div>
+                    <div class="text-center">
+                        <ul class="pagination" id="itempage4"></ul>
+                    </div>
+                </div>
+            </div>
+            <div class="panel-footer"></div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">请确认</h4>
+            </div>
+            <div class="modal-body" id="dialogtext"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary"data-dismiss="modal">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="myModalinput" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">请输入验证码</h4>
+            </div>
+            <div class="modal-body">
+                <input type="text" id="varitify" class="form-control">
+                <p class="hide" id="id_text"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="sendvar()">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block script %}
+    <script src="{{ url_for('static',filename='js/home.js') }}"></script>
+{% endblock %}

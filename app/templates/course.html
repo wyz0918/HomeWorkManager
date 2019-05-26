@@ -1,0 +1,145 @@
+{% extends "base2.html" %}
+{% set active_page = "mypage" %}
+{% block contents %}
+<div class="container">
+    <script type="text/javascript">
+        var student_list={{content.students|tojson}};
+        var homework_list={{content.homeworks|tojson}};
+        var type={{content.type}};
+    </script>
+    <div class="col-xs-4">
+        <div class="panel panel-default">
+            <div class="panel-heading">首页 / 我的课程 / {{content.course_info.course_name}}</div>
+            <div class="panel-body">
+                <h1>{{content.course_info.course_name}}</h1>
+                <div class="text-left" style="margin-top:20px">
+                    <img src="{{ url_for('static',filename='img/cor.png') }}" alt="通用的占位符缩略图"style='width:260px'>
+                </div>
+                <div style="margin-top:35px">
+                    <h4>教师信息</h4>
+                    <hr color="#337ab7" size="3"/>
+                    <ul>
+                        <li>教师姓名：{{content.teacher.username}}</li>
+                        <li>所属院系：</li>
+                        <li>个人简介：</li>
+                    </ul>
+                </div>
+                <div style="margin-top:35px">
+                    <h4>课程信息</h4>
+                    <hr color="#337ab7" size="3"/>
+                    <ul>
+                        <li>选课学生人数：{{content.students_num}}</li>
+                        <li>课程作业数：{{content.homeworks_num}}</li>
+                        <li>课程简介：</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-xs-8">
+        <div class="panel panel-default">
+            <div class="panel-heading">课程详情</div>
+            <div class="panel-body">
+                <ul class="nav nav-tabs">
+                  <li id="s_l"><a href="#student_list" data-toggle="tab">学生列表</a></li>
+                  <li id="h_l"><a href="#homework_list" data-toggle="tab">作业列表</a></li>
+                </ul>
+                <div class="tab-content">
+                    <div class="tab-pane" id="student_list">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>学生学号</th>
+                                    <th>学生姓名</th>
+                                    <th>应交作业数</th>
+                                    <th>已交作业数</th>
+                                    <th>完成率</th>
+                                </tr>
+                            </thead>
+                            <tbody id="student_text"></tbody>
+                        </table>
+                        <div class="text-center">
+                            <ul class="pagination" id="itempage1"></ul>
+                        </div>
+                    </div>
+                    <div class="tab-pane" id="homework_list">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>批次</th>
+                                    <th>开始时间</th>
+                                    <th>截止时间</th>
+                                    <th>未交人数</th>
+                                    <th>已交人数</th>
+                                    <th>情况</th>
+                                </tr>
+                            </thead>
+                            <tbody id="homeword_text"></tbody>
+                        </table>
+                        <div class="text-center">
+                            <ul class="pagination" id="itempage2"></ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="homeworkModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title">{{content.course_info.course_name}}——<span id="dialoglable"></span></h4>
+            </div>
+            <div class="modal-body">
+                <div class="buildnael">
+                    <h4>题目：</h4>
+                    <p id="question_text"></p>
+                    <div id="question_img">
+                    </div>
+                </div>
+                <div class="buildnael">
+                    <h4>解答：</h4>
+                    <div id="answer_img"></div>
+                    <div id="download_img"></div>
+                    <div id="select_img" class="input-group" style="width:250px;margin-top:25px">
+                        <input type="text" id="browsetreaminput" class="form-control" placeholder="您还未选择文件" readonly>
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" id="file_select"><span class="glyphicon glyphicon-folder-open"></span>上传文件</button>
+                            <input class="hide" id="treamitemFile" type="file" accept=".jpg,.jpeg,.png,.gif"/>
+                         </span>
+                    </div>
+                </div>
+                <div class="buildnael">
+                     <h4>得分：</h4>
+                     <p id="score_text" style="margin-left:45px">暂无！</p>
+                     <p style="margin-left:45px">教师评语：<span id="comment_text">暂无！</span></p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div id="work_id" class="hide"></div>
+                <button id="change_img" class="btn btn-default" type="button" style="width:100px">修改</button>
+                <button type="button" id="send_img" class="btn btn-primary"style="width:100px" disabled>提 交</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">请确认</h4>
+            </div>
+            <div class="modal-body" id="dialogtext"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary"data-dismiss="modal">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block script %}
+    <script src="{{ url_for('static',filename='js/course.js') }}"></script>
+{% endblock %}

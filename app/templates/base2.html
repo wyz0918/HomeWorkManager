@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <link rel="icon" href="{{ url_for('static',filename='img/favicon.ico') }}">
+
+    <title>作业管理系统</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="{{ url_for('static',filename='css/bootstrap.min.css') }}" rel="stylesheet">
+    <!-- Bootstrap theme -->
+    <link href="{{ url_for('static',filename='css/bootstrap-theme.min.css') }}" rel="stylesheet">
+
+    <!-- Custom styles for this template -->
+    <link href="{{ url_for('static',filename='css/theme.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static',filename='css/dashboard.css') }}" rel="stylesheet">
+    <link href="/css/jquery-ui.css" rel="stylesheet">
+    <link href="{{ url_for('static',filename='css/jquery-ui.css') }}" rel="stylesheet">
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+</head>
+
+<body>
+<style type="text/css">
+    .bgg{background:url({{url_for('static',filename='img/bg.gif')}});background-size:cover}
+    .mycontain{padding:0px;margin: 0px;}
+    .cen{padding-left:8px;padding-right:8px}
+    .buildnael{  display: block;
+                  padding: 4px;
+                  margin-bottom: 20px;
+                  line-height: 1.42857143;
+                  background-color: #fff;
+                  border: 1px solid #ddd;}
+    *{ -moz-border-radius: 0 !important;
+     border-radius: 0 !important;}
+</style>
+<!-- Fixed navbar -->
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+                    aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="{{ url_for('home') }}">学生作业管理系统</a>
+        </div>
+        <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-right">
+                {% if g.user.is_authenticated %}
+                <li><a href="{{ url_for('home') }}">Hi，{{g.user.username}} ！</a></li>
+                {% endif %}
+                {% set navigation_bar = [
+                (url_for('home'), 'home', '主页'),
+                ] -%}
+                {% set active_page = active_page|default('mypage') -%}
+                {% for href, id, caption in navigation_bar %}
+                <li {% if active_page== id %}class="active" {% endif %}><a href="{{ href|e }}">{{ caption|e }}</a></li>
+                {% endfor %}
+                {% if g.user.is_authenticated %}
+                <li><a href="{{ url_for('logout') }}">退出</a></li>
+                {% else %}
+                <li {% if active_page=="signup" %}class="active"{% endif %}><a href="{{ url_for('signup') }}">注册</a></li>
+                {% endif %}
+            </ul>
+        </div><!--/.nav-collapse -->
+    </div>
+</nav>
+
+<div class="container-fluid" style="margin-top: 20px">
+{% block contents %}
+    <div class="row" >
+        <div class="col-sm-3 col-md-2 ">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <span class="glyphicon glyphicon-home"></span>
+                </div>
+                <div class="panel-body mycontain">
+                    <div class="text-center" style="margin-top: 20px">
+                        <div class="row">
+                        <img src="{{ url_for('static',filename='img/photo.png') }}" class="col-sm-8 col-sm-offset-2 img-responsive img-circle">
+                        </div>
+                        <div class="h4" style="margin: 10px">{{content.student_base_info.username}}</div>
+                    </div>
+                    <div class="panel-group" id="accordion">
+                        <ul class="nav nav-pills nav-stacked">
+                            <li id="first_menu" style="margin-top:10px" ><a data-toggle="collapse" data-parent="#accordion" href="#collapseOne" >课程中心</a>
+                                <div id="collapseOne" class="panel-collapse collapse out ">
+                                      <ul class="nav nav-pills nav-stacked ">
+                                          <li id="m1_my_class"class="cen" ><a class="h6" href="#my_class" data-toggle="tab">我的课程</a></li>
+                                          <li id="m1_search_class"class="cen"><a class="h6"href="#search_class" data-toggle="tab">查找课程</a></li>
+                                      </ul>
+                                 </div>
+                            </li>
+                            <li id="second_menu" style="margin-top: 5px"><a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo">作业管理</a>
+                                 <div id="collapseTwo" class="panel-collapse collapse out">
+                                      <ul class="nav nav-pills nav-stacked">
+                                          <li  id="m2_my_work" class="cen"><a class="h6" href="#my_homework" data-toggle="tab">我的作业</a></li>
+                                      </ul>
+                                </div>
+                            </li>
+                            <li id="third_menu" style="margin-top: 5px"><a data-toggle="collapse"  data-parent="#accordion" href="#collapseThree">个人设置</a>
+                                 <div id="collapseThree" class="panel-collapse collapse out">
+                                      <ul class="nav nav-pills nav-stacked">
+                                          <li id="m3_my_msg" class="cen"><a class="h6" href="#my_message" data-toggle="tab">个人信息</a></li>
+                                          <li id="m3_change_pw"class="cen"><a class="h6" href="#change_pw" data-toggle="tab">修改密码</a></li>
+                                      </ul>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-9  col-md-10 ">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+{% endblock %}
+</div>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="{{ url_for('static',filename='js/jquery-3.4.1.min.js') }}"></script>
+    <script src="{{ url_for('static',filename='js/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static',filename='js/theme.js') }}"></script>
+    <script src="{{ url_for('static',filename='js/jquery-ui.js') }}"></script>
+    {% block script %}{% endblock %}
+</body>
+</html>
