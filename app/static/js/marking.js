@@ -35,7 +35,7 @@ function score_comment(){
             $(".reminder").text("SUCCESS: "+data);
             $(".summit").hide();
             $(".score").text(score);
-            $(".comment").val(comment);
+            $(".comment").text(comment);
 
 
          }
