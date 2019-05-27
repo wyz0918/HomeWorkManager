@@ -24,19 +24,14 @@ class LoginForm(FlaskForm):
 
 
 class WorkArrangeForm(FlaskForm):
-
-    course_id = SelectField('Course_id',choices=[],validators=[DataRequired("")])
-    homework_batch = SelectField('Homework_batch', coerce=int,choices=[],validators=[DataRequired("")])
-    homework_describe = TextAreaField('Homework_describe',validators=[DataRequired("请输入作业描述.")])
+    course_id = SelectField('Course_id', choices=[], validators=[DataRequired("")])
+    homework_batch = SelectField('Homework_batch', coerce=int, choices=[], validators=[DataRequired("")])
+    homework_describe = TextAreaField('Homework_describe', validators=[DataRequired("请输入作业描述.")])
     attach = FileField('Your Attachment', validators=[FileAllowed(files, '可以上传文件和图片!')])
-    start_time = DateField('DatePicker', format='%Y-%m-%d',validators=[DataRequired("请选择开始时间.")])
-    end_time = DateField('DatePicker', format='%Y-%m-%d',validators=[DataRequired("请选择截止时间.")])
+    start_time = DateField('DatePicker', format='%Y-%m-%d', validators=[DataRequired("请选择开始时间.")])
+    end_time = DateField('DatePicker', format='%Y-%m-%d', validators=[DataRequired("请选择截止时间.")])
 
 
 class MarkingForm(FlaskForm):
-
-    course_id = SelectField('Course_id',choices=[],validators=[DataRequired("")])
-    homework_batch = SelectField('Homework_batch', coerce=int,choices=[],validators=[DataRequired("")])
-
-
-
+    course_id = SelectField('Course_id', choices=[], validators=[DataRequired("")])
+    homework_batch = SelectField('Homework_batch', coerce=int, choices=[], validators=[DataRequired("")])

@@ -26,9 +26,14 @@ function tablestudent(tableid,pageid,data,name,size){
         $(this.page).html(ps);
     }
     this.getItem=function(dataitem){
+        var rate;
+        if(parseInt(homework_num)==0)
+            rate=1;
+        else
+            rate=parseInt(dataitem.commit_num)/parseInt(homework_num);
         var s="<tr><td>"+dataitem.id+"</td><td>"+
-        dataitem.username+"</td><td>"+dataitem.shouldcomplete+
-        "</td><td>"+dataitem.complete+"</td><td>"+dataitem.rate+"</td></tr>";
+        dataitem.username+"</td><td>"+homework_num+
+        "</td><td>"+dataitem.commit_num+"</td><td>"+parseInt(rate*100)+"%</td></tr>";
         return s;
     }
     this.loaddata=function(){
@@ -72,8 +77,12 @@ function tablehomework(tableid,pageid,data,name,size){
 	this.getItem=function(dataitem){
 		var s="<tr><td>"+dataitem.batch+"</td><td>"+
         dataitem.start_time+"</td><td>"+dataitem.end_time+
-        "</td><td>"+dataitem.nocomplete+"</td><td>"+
-        dataitem.complete+"</td><td><a href=\"javascript:void(0)\" onClick=\"view_homework('"+dataitem.id+"')\">查看</a></td></tr>";
+        "</td><td>"+(student_num-dataitem.upload_num)+"</td><td>"+
+        dataitem.upload_num+"</td><td><a href=\"javascript:void(0)\" onClick=\"view_homework('"+dataitem.id+"')\">";
+        if(dataitem.completion)
+            s+="已完成</a></td></tr>";
+        else
+            s+="未完成</a></td></tr>";
         return s;
 	}
 }
@@ -90,21 +99,37 @@ function view_homework(id){
             contentType: 'application/json',
             data:JSON.stringify(d),
             success:function(data){
-                $("#dialoglable").text(data.homework.homework_describe);
-//                $("#question_text").text(data.homework.introdue);
-                $("#question_img").html("<img src=\"_uploads/files/"+data.homework.attach+"\" alt=\"通用的占位符缩略图\" style=\"width:600px\">");
+                $("#dialoglable").text('第'+data.homework.batch+'次作业');
+                $("#question_text").text(data.homework.homework_describe);
+                if(data.homework.attach){
+                    var t_f=data.homework.attach.split('.')[1];
+                    if(t_f=='jpeg'||t_f=='jpg'||t_f=='png'||t_f=='gif')
+                        $("#question_img").html("<img src=\"_uploads/files/"+data.homework.attach+"\" alt=\"通用的占位符缩略图\" style=\"width:600px\">");
+                    else
+                        $("#question_img").html("<a class=\"btn btn-default\" href='/pics/"+data.homework.attach+"'download='"+data.homework.attach+"'><span class='glyphicon glyphicon-arrow-down'></span>下载附件</a>");
+                }
+                else
+                    $("#question_img").html('');
                 if(data.completion!=null){
+                    $("#change_img").show();
                     $("#select_img").hide();
-                    $("#download_img").html("<a class=\"btn btn-default\" href='/homeworks/"+data.completion.address+"'download='"+data.completion.address+"'><span class='glyphicon glyphicon-arrow-down'></span>点击下载</a>");
-                    $("#answer_img").html("<img src=\"/homeworks/"+data.completion.address+"\" alt=\"通用的占位符缩略图\" style=\"width:600px\">")
+                    $("#download_img").html("<a class=\"btn btn-default\" href='/homeworks/"+data.completion.address+"'download='"+data.completion.address+"'><span class='glyphicon glyphicon-arrow-down'></span>下载附件</a>");
+                    var d_f=data.completion.address.split('.')[1];
+                    if(d_f=='jpeg'||d_f=='jpg'||d_f=='png'||d_f=='gif')
+                        $("#answer_img").html("<img src=\"/homeworks/"+data.completion.address+"\" alt=\"通用的占位符缩略图\" style=\"width:600px\">");
+                    else
+                        $("#answer_img").html("");
                     if(data.completion.score!=null)
                         $("#score_text").text(data.completion.score+"分");
                     if(data.completion.comment!=null)
                         $("#comment_text").text(data.completion.comment);
                 }
                 else{
+                    $("#score_text").text('暂无！');
+                    $("#comment_text").text('暂无！');
+                    $("#select_img").show();
                     $("#answer_img").html("");
-                    $("download_img").html("");
+                    $("#download_img").html("");
                     $("#change_img").hide();
                 }
                 $("#homeworkModal").modal('show');
@@ -113,6 +138,7 @@ function view_homework(id){
 }
 $(document).ready(function(){
     var file;
+    var font;
     if(student_list.length==0)
         $("#student_list").html("<p class=\"h3\"style=\"margin:30px\">暂无学生!</p>");
     else{
@@ -144,9 +170,13 @@ $(document).ready(function(){
             $("#answer_img").html("");
         }
         else{
+            var spls=filepath.split('.');
             file=this.files[0];
-            $("#answer_img").html("<img id=\"imags\" src=\"\" alt=\"通用的占位符缩略图\" style=\"width:600px\">");
-            $("#imags").attr("src",window.URL.createObjectURL(file));
+            font=spls[spls.length-1];
+            if(font=='jpeg'||font=='jpg'||font=='png'||font=='gif'){
+                $("#answer_img").html("<img id=\"imags\" src=\"\" alt=\"通用的占位符缩略图\" style=\"width:600px\">");
+                $("#imags").attr("src",window.URL.createObjectURL(file));
+            }
             $("#send_img").removeAttr("disabled");
         }
     });
@@ -156,7 +186,8 @@ $(document).ready(function(){
         reader.onload=function(e){
             imgFile=e.target.result;
              var d={work_id:$("#work_id").text(),
-             img:imgFile}
+             img:imgFile,
+             font:font}
             $.ajax({
                 type:"post",
                 dataType:"json",
@@ -168,6 +199,7 @@ $(document).ready(function(){
                         $("#homeworkModal").modal("hide");
                         $("#dialogtext").text("提交成功")
                         $("#myModal").modal("show");
+                        setTimeout(function(){location.reload();},1500);
                     }else{
                         $("#homeworkModal").modal("hide");
                         $("#dialogtext").text("提交失败")

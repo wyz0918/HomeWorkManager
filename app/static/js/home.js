@@ -26,7 +26,7 @@ function tablepage(tableid,pageid,data,name,size){
         $(this.page).html(ps);
     }
     this.getItem=function(dataitem){
-        var s="<tr><td>"+dataitem.course_name+"</td><td>"+dataitem.attach+"</td><td>"+
+        var s="<tr><td>"+dataitem.course_name+"</td><td>"+dataitem.batch+"</td><td>"+
         dataitem.start_time+"</td><td>"+dataitem.end_time+
         "</td><td><a href=\"/course?id="+dataitem.course_id+"&type=2\" target=\"_blank\">提交</a></td></tr>";
         return s;
@@ -80,10 +80,10 @@ function tablepage2(tableid,pageid,data,name,size){
     tablepage.call(this,tableid,pageid,data,name,size);
     this.getItem=function(dataitem){
         var s="<div class=\"row buildnael\"><div class=\"col-xs-4\"><img src=\"/img/cor.png\" alt=\"通用的占位符缩略图\"style='width:240px'></div>"
-        +"<div class=\"col-xs-3\"><div class=\"h3\" style=\"margin-top:22px\">"+dataitem.course_name+"</div><span>任课教师:"
-        +dataitem.creator_name+"</span><p>课程简介:"+dataitem.intorduce+"</p></div>"
+        +"<div class=\"col-xs-3\"><div class=\"h3\" style=\"margin-top:30px\">"+dataitem.course_name+"</div><span style='margin-top:20px'>任课教师:"
+        +dataitem.creator_name+"</span></div>"
         +"<div class=\"col-xs-5\"><a role=\"button\" href=\"/course?id="+dataitem.id+"&type=1\" target=\"_blank\" class=\"btn btn-primary\"style=\"margin-top: 35px; width: 85px\">进入课程"
-        +"</a><br><a role=\"button\" href=\"/course?id="+dataitem.id+"&type=2\" target=\"_blank\" class=\"btn btn-primary\"style=\"margin-top:20px;width: 85px;\">查看作业</a></div></div>";
+        +"</a><br><a role=\"button\" href=\"/course?id="+dataitem.id+"&type=2\" target=\"_blank\" class=\"btn btn-default\"style=\"margin-top:20px;width: 85px;\">查看作业</a></div></div>";
         return s;
     }
 }
@@ -91,8 +91,8 @@ function tablepage3(tableid,pageid,data,name,size){
      tablepage.call(this,tableid,pageid,data,name,size);
      this.getItem=function(dataitem){
         var s="<div class=\"row buildnael\"><div class=\"col-xs-4\"><img src=\"/img/cor.png\" alt=\"通用的占位符缩略图\"style='width:240px'></div>"
-        +"<div class=\"col-xs-3\"><div class=\"h3\" style=\"margin-top:22px\">"+dataitem.course_name+"</div><span>任课教师:"
-        +dataitem.creator_name+"</span><p>课程简介:"+dataitem.intorduce+"</p></div>";
+        +"<div class=\"col-xs-3\"><div class=\"h3\" style=\"margin-top:30px\">"+dataitem.course_name+"</div><span style='margin-top:20px'>任课教师:"
+        +dataitem.creator_name+"</span></div>";
         if(!dataitem.in_out)
             s+="<div class=\"col-xs-5\"><a role=\"button\" href='javascript:void(0)'onClick=\"openinput('"+dataitem.id+"')\" class=\"btn btn-primary\"style=\"margin-top: 50px; width: 85px\">申请加入</a><br></div></div>";
         else
@@ -159,8 +159,9 @@ function sendvar(){
             success:function(data){
                 if(data.code=='100'){
                     $("#myModalinput").modal('hide');
-                    $("#dialogtext").text("加入成功，刷新页面查看");
+                    $("#dialogtext").text("加入成功");
                     $("#myModal").modal("show");
+                    setTimeout(function(){location.reload();},1500);
                 }
                 else{
                      $("#myModalinput").modal('hide');
@@ -200,7 +201,6 @@ $(document).ready(function(){
     $("#mchange").click(function(){
         if($("#mchange").text()=="修 改"){
             $("#mchange").text("取 消");
-            $("#myname").removeAttr("readOnly");
             $("#mybirth").removeAttr("readOnly");
             $("#mygrade").removeAttr("readOnly");
             $("#myschool").removeAttr("readOnly");
@@ -215,7 +215,6 @@ $(document).ready(function(){
             $("#myschool").val(additional_info.university);
             $("#mycollage").val(additional_info.college);
             $("#mymajor").val(additional_info.major);
-            $("#myname").attr("readOnly",true);
             $("#mybirth").attr("readOnly",true);
             $("#mygrade").attr("readOnly",true);
             $("#myschool").attr("readOnly",true);
@@ -257,7 +256,6 @@ $(document).ready(function(){
                     $("#myschool").val(additional_info.university);
                     $("#mycollage").val(additional_info.college);
                     $("#mymajor").val(additional_info.major);
-                    $("#myname").attr("readOnly",true);
                     $("#mybirth").attr("readOnly",true);
                     $("#mygrade").attr("readOnly",true);
                     $("#myschool").attr("readOnly",true);
@@ -324,6 +322,7 @@ $(document).ready(function(){
                     $("#new_password").attr("readOnly",true);
                     $("#new_password1").attr("readOnly",true);
                     $("#cpsubmit").attr("disabled",true);
+                    setTimeout(function(){location.reload();},1500);
                 }
                }
             });

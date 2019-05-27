@@ -1,7 +1,7 @@
 if __name__ == '__main__':
     # from app.models import User, HomeWork, Course, ElectiveCourse, Completion, AdditionalStudentInfo
-    import time
-    print(time.strftime('%Y.%m.%d'))
+    # import time
+    # print(time.strftime('%Y.%m.%d'))
     # print(Course.query.filter_by(course_name="大学物理").all())
     # print(Course.query.filter_by(course_name="大学物理").first())
     # print(Course.query.get("QQQ111"))
@@ -27,3 +27,11 @@ if __name__ == '__main__':
     #
     # print(homeworks_of_course_complete)
     # print(homeworks_of_course_incomplete)
+
+    lists = "高等数学第一批作业.JPG"
+    for i in range(len(lists)-1, -1, -1):
+        if lists[i] == ".":
+            break
+
+    print(lists[i:])
+    pass

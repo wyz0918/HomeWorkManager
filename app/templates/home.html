@@ -79,7 +79,7 @@
                                 <div class="h2" style="padding-top: 23px">{{content.student_base_info.username}}</div>
                                 <div class="h4" style="padding-top: 10px">
                                     {% if content.student_additional_info.university %}
-                                    <span class="text-success">{{content.student_additional_info.university+content.student_additional_info.major}}</span>
+                                    <span class="text-success">{{content.student_additional_info.university}}&nbsp;&nbsp;&nbsp;{{content.student_additional_info.major}}</span>
                                     {% else %}
                                     <span class="text-warning">请完善个人信息</span>
                                     {% endif %}
@@ -93,9 +93,9 @@
                         <div class="col-xs-4">
                             <div class="input-group">
                                 <span class="input-group-btn">
-                                    <button class="btn btn-primary"  type="button">我的昵称</button>
+                                    <button class="btn btn-primary"  type="button">我的姓名</button>
                                 </span>
-                                <input type="text" id="myname" class="form-control" value={{content.student_base_info.username}} readonly>
+                                <input type="text" id="myname" class="form-control" value={{content.student_base_info.username}} disabled>
                             </div><br>
                             <div class="input-group">
                                 <span class="input-group-btn">
@@ -196,10 +196,8 @@
                     <div class="panel-heading"><span class="h5">系统简介</span></div>
                     <div class="panel-body">
                         <h2>你好！{{content.student_base_info.username}}</h2>
-                        <p>本系统主要用于。。。。。。。。。。。</p>
-                        <p>...</p>
-                        <p>...</p>
-                        <p>...</p>
+                        <p>欢迎来到作业管理系统学生端，本系统服务于教师、学生，提供作业管理的功能。</p>
+                        <p>根据菜单栏进行相关的操作吧。</p>
                     </div>
                 </div>
             </div>

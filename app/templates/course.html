@@ -6,6 +6,8 @@
         var student_list={{content.students|tojson}};
         var homework_list={{content.homeworks|tojson}};
         var type={{content.type}};
+        var homework_num={{content.homeworks_num}};
+        var student_num={{content.students_num}};
     </script>
     <div class="col-xs-4">
         <div class="panel panel-default">
@@ -16,21 +18,18 @@
                     <img src="{{ url_for('static',filename='img/cor.png') }}" alt="通用的占位符缩略图"style='width:260px'>
                 </div>
                 <div style="margin-top:35px">
-                    <h4>教师信息</h4>
+                    <h3>教师信息</h3>
                     <hr color="#337ab7" size="3"/>
                     <ul>
-                        <li>教师姓名：{{content.teacher.username}}</li>
-                        <li>所属院系：</li>
-                        <li>个人简介：</li>
+                        <li><span class="h5">教师姓名：{{content.teacher.username}}</span></li>
                     </ul>
                 </div>
                 <div style="margin-top:35px">
-                    <h4>课程信息</h4>
+                    <h3>课程信息</h3>
                     <hr color="#337ab7" size="3"/>
                     <ul>
-                        <li>选课学生人数：{{content.students_num}}</li>
-                        <li>课程作业数：{{content.homeworks_num}}</li>
-                        <li>课程简介：</li>
+                        <li><span class="h5">选课学生人数：{{content.students_num}}</span></li>
+                        <li><span class="h5">课程作业数：{{content.homeworks_num}}</span></li>
                     </ul>
                 </div>
             </div>
@@ -107,7 +106,7 @@
                         <input type="text" id="browsetreaminput" class="form-control" placeholder="您还未选择文件" readonly>
                         <span class="input-group-btn">
                             <button class="btn btn-default" id="file_select"><span class="glyphicon glyphicon-folder-open"></span>上传文件</button>
-                            <input class="hide" id="treamitemFile" type="file" accept=".jpg,.jpeg,.png,.gif"/>
+                            <input class="hide" id="treamitemFile" type="file"/>
                          </span>
                     </div>
                 </div>

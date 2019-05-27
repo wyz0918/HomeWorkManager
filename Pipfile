@@ -15,6 +15,7 @@ flask-wtf = "*"
 requests = "*"
 flask-uploads = "*"
 pipfile = "*"
+pypinyin = "*"
 
 [requires]
 python_version = "3.7"
