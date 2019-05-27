@@ -9,11 +9,12 @@ function fill_form(){
 
 }
 
-function score_comment(homework_id){
+function score_comment(){
 
     score = $(".input_score").val();
     comment = $(".input_comment").val();
     student_id = $(".student_id").text();
+    homework_id = $("#hiding").text();
 
 
     $.ajax({

@@ -33,6 +33,9 @@ def score_comment():
     score = request.values['score']
     comment = request.values['comment']
 
+    print (homework_id)
+    print (student_id)
+
     completion = Completion.query.filter(and_(Completion.homework_id == homework_id,
                                               Completion.student_id == student_id)).first()
 
@@ -152,6 +155,10 @@ def search_homework():
         each_info['comment'] = record.comment if record.comment else "暂无"
 
         info["homework_info"].append(each_info)
+
+    each_info = dict()
+    each_info["homework_id"] = homework_id
+    info["homework_info"].append(each_info)
 
     return jsonify(info)
 
